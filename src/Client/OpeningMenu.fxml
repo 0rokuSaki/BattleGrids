@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="720.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Client.OpeningMenuController">
+   <children>
+      <VBox alignment="CENTER" layoutX="185.0" layoutY="40.0" prefHeight="400.0" prefWidth="350.0" spacing="10.0" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="185.0" AnchorPane.rightAnchor="185.0" AnchorPane.topAnchor="40.0">
+         <children>
+            <Label text="BattleGrids">
+               <font>
+                  <Font name="Bauhaus 93" size="64.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="20.0" />
+               </VBox.margin>
+            </Label>
+            <Button mnemonicParsing="false" onAction="#loginButtonPress" prefHeight="50.0" prefWidth="150.0" text="Login">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Button>
+            <Button layoutX="110.0" layoutY="127.0" mnemonicParsing="false" onAction="#registerButtonPress" prefHeight="50.0" prefWidth="150.0" text="Register">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Button>
+            <Button layoutX="110.0" layoutY="157.0" mnemonicParsing="false" onAction="#playAsGuestButtonPress" prefHeight="50.0" prefWidth="150.0" text="Play As Guest">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Button>
+            <Button layoutX="110.0" layoutY="177.0" mnemonicParsing="false" onAction="#exitButtonPress" prefHeight="50.0" prefWidth="150.0" text="Exit">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Button>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
