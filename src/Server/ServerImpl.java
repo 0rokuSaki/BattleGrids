@@ -9,7 +9,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class ServerImpl implements Server {
 
-    private DBManagerDummy dbManager = new DBManagerDummy();
+    private final DBManagerDummy dbManager = new DBManagerDummy();
 
     @Override
     public String handleLoginRequest(String username, String passwordHash) throws RemoteException {
