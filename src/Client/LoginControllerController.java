@@ -62,16 +62,10 @@ public class LoginControllerController extends ControllerBase {
     }
 
     @FXML
-    void loginButtonPress(ActionEvent event) {
+    void loginButtonPress(ActionEvent event) throws IOException {
         // Get text from fields
         String username = usernameField.getText();
         String password = passwordField.getText();
-
-        // Validate username & password fields
-        if (password.equals("") || username.equals("")) {
-            loginErrLabel.setText("Invalid username and/or password");
-            return;
-        }
 
         // Generate password hash (if applicable)
         String passwordHash;
@@ -89,26 +83,19 @@ public class LoginControllerController extends ControllerBase {
         }
 
         // Login to server
-        Server.ReturnCode rc = Server.ReturnCode.NO_ERROR;
-        try {
-             rc = serverStubHolder.getServerStub().handleLoginRequest(username, passwordHash);
-        } catch (RemoteException remoteException) {
-            remoteException.printStackTrace();
-        }
+        String returnMessage = serverStubHolder.getServerStub().handleLoginRequest(username, passwordHash);
 
         // Handle response from server
-        if (rc == Server.ReturnCode.NO_ERROR) {
+        if (returnMessage.equals("")) {
             // Save credentials
             if (rememberMeCheckBox.isSelected()) {
                 credentialsManager.saveCredentialsToFile(username, passwordHash);
             }
 
             // TODO: Enter game lobby
-            //changeScene(event, "scene.fxml");
-        } else if (rc == Server.ReturnCode.INCORRECT_LOGIN_INFO) {
-            loginErrLabel.setText("Incorrect username and/or password");
+            changeScene(event, "fxml/PlaceHolder.fxml");
         } else {
-            loginErrLabel.setText("Failed to login");
+            loginErrLabel.setText(returnMessage);
         }
     }
 

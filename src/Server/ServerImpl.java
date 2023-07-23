@@ -9,26 +9,27 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class ServerImpl implements Server {
 
+    private final DBManagerDummy dbManager = new DBManagerDummy();
+
     @Override
-    public ReturnCode handleLoginRequest(String username, String passwordHash) throws RemoteException {
-        if (username.equals("0")) {
-            return ReturnCode.NO_ERROR;
+    public String handleLoginRequest(String username, String passwordHash) throws RemoteException {
+        String dbPasswordHash = dbManager.getPasswordHash(username);
+        if (dbPasswordHash != null && dbPasswordHash.equals(passwordHash)) {
+            return "";
         }
-        if (username.equals("1")) {
-            return ReturnCode.INCORRECT_LOGIN_INFO;
-        }
-        return ReturnCode.GENERAL_ERROR;
+        return "Incorrect username and/or password";
     }
 
     @Override
-    public ReturnCode handleRegistrationRequest(String username, String passwordHash) throws RemoteException {
-        if (username.equals("0")) {
-            return ReturnCode.NO_ERROR;
+    public String handleRegistrationRequest(String username, String passwordHash) throws RemoteException {
+        if (dbManager.userExists(username)) {
+            return "Username already exists";
         }
-        if (username.equals("1")) {
-            return ReturnCode.USER_ALREADY_EXISTS;
+        if (username.equals("") || passwordHash.equals("")) {
+            return "Invalid username and/or password";
         }
-        return ReturnCode.GENERAL_ERROR;
+        dbManager.setUser(username, passwordHash);
+        return "";
     }
 
     public static void main(String[] args) throws RemoteException, AlreadyBoundException {
