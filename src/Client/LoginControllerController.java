@@ -62,7 +62,7 @@ public class LoginControllerController extends ControllerBase {
     }
 
     @FXML
-    void loginButtonPress(ActionEvent event) {
+    void loginButtonPress(ActionEvent event) throws IOException {
         // Get text from fields
         String username = usernameField.getText();
         String password = passwordField.getText();
@@ -104,7 +104,7 @@ public class LoginControllerController extends ControllerBase {
             }
 
             // TODO: Enter game lobby
-            //changeScene(event, "scene.fxml");
+            changeScene(event, "fxml/PlaceHolder.fxml");
         } else if (rc == Server.ReturnCode.INCORRECT_LOGIN_INFO) {
             loginErrLabel.setText("Incorrect username and/or password");
         } else {

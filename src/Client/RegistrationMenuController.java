@@ -56,7 +56,7 @@ public class RegistrationMenuController extends ControllerBase {
     }
 
     @FXML
-    void registerButtonPress(ActionEvent event) {
+    void registerButtonPress(ActionEvent event) throws IOException {
         // Get text from fields
         String username = usernameField.getText();
         String password = passwordField.getText();
@@ -99,7 +99,7 @@ public class RegistrationMenuController extends ControllerBase {
             }
 
             // TODO: Enter game lobby
-            //changeScene(event, "scene.fxml");
+            changeScene(event, "fxml/PlaceHolder.fxml");
         } else if (rc == Server.ReturnCode.USER_ALREADY_EXISTS) {
             regErrLabel.setText("User already exists");
         } else {
