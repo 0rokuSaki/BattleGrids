@@ -62,11 +62,8 @@ public class RegistrationMenuController extends ControllerBase {
         String password = passwordField.getText();
         String verifyPassword = verifyPasswordField.getText();
 
-        // Validate username & password fields
-        if (verifyPassword.equals("") || password.equals("") || username.equals("")) {
-            regErrLabel.setText("Invalid username and/or password");
-            return;
-        } else if (!password.equals(verifyPassword)) {
+        // Make sure passwords match
+        if (!password.equals(verifyPassword)) {
             regErrLabel.setText("Passwords do not match");
             return;
         }
@@ -83,16 +80,10 @@ public class RegistrationMenuController extends ControllerBase {
         }
 
         // Register to server
-        Server.ReturnCode rc = Server.ReturnCode.NO_ERROR;
-        boolean registerSuccess = false;
-        try {
-            rc = serverStubHolder.getServerStub().handleRegistrationRequest(username, passwordHash);
-        } catch (RemoteException remoteException) {
-            remoteException.printStackTrace();
-        }
+        String returnMessage = serverStubHolder.getServerStub().handleRegistrationRequest(username, passwordHash);
 
         // Handle response from server
-        if (rc == Server.ReturnCode.NO_ERROR) {
+        if (returnMessage.equals("")) {
             // Save credentials
             if (rememberMeCheckBox.isSelected()) {
                 credentialsManager.saveCredentialsToFile(username, passwordHash);
@@ -100,10 +91,8 @@ public class RegistrationMenuController extends ControllerBase {
 
             // TODO: Enter game lobby
             changeScene(event, "fxml/PlaceHolder.fxml");
-        } else if (rc == Server.ReturnCode.USER_ALREADY_EXISTS) {
-            regErrLabel.setText("User already exists");
         } else {
-            regErrLabel.setText("Failed to register");
+            regErrLabel.setText(returnMessage);
         }
     }
 
