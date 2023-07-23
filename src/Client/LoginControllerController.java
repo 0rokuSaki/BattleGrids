@@ -42,6 +42,6 @@ public class LoginControllerController extends ControllerBase {
 
     @FXML
     void backButtonPress(ActionEvent event) throws IOException {
-        changeScene(event, "OpeningMenu.fxml");
+        changeScene(event, "fxml/OpeningMenu.fxml");
     }
 }
