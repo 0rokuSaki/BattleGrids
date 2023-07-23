@@ -88,9 +88,7 @@ public class RegistrationMenuController extends ControllerBase {
             if (rememberMeCheckBox.isSelected()) {
                 credentialsManager.saveCredentialsToFile(username, passwordHash);
             }
-
-            // TODO: Enter game lobby
-            changeScene(event, "fxml/PlaceHolder.fxml");
+            changeScene(event, "fxml/LobbyMenu.fxml");
         } else {
             regErrLabel.setText(returnMessage);
         }
