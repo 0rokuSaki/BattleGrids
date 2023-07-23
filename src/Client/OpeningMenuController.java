@@ -10,13 +10,13 @@ public class OpeningMenuController extends ControllerBase {
     @FXML
     void loginButtonPress(ActionEvent event) throws IOException {
         System.out.println("Login");
-        changeScene(event, "LoginMenu.fxml");
+        changeScene(event, "fxml/LoginMenu.fxml");
     }
 
     @FXML
     void registerButtonPress(ActionEvent event) throws IOException {
         System.out.println("Register");
-        changeScene(event, "RegistrationMenu.fxml");
+        changeScene(event, "fxml/RegistrationMenu.fxml");
     }
 
     @FXML

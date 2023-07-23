@@ -11,7 +11,7 @@ import java.net.URL;
 public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
-        URL url = getClass().getResource("OpeningMenu.fxml");
+        URL url = getClass().getResource("fxml/OpeningMenu.fxml");
         Parent root = FXMLLoader.load(url);
         Scene scene = new Scene(root);
         stage.setTitle("BattleGrids");
