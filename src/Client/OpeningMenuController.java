@@ -5,7 +5,7 @@ import javafx.fxml.FXML;
 
 import java.io.IOException;
 
-public class OpeningMenuController extends MenuBase {
+public class OpeningMenuController extends ControllerBase {
 
     @FXML
     void loginButtonPress(ActionEvent event) throws IOException {
