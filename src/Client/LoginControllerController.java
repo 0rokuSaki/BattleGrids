@@ -1,12 +1,13 @@
 package Client;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
 import java.io.IOException;
 
-public class LoginMenuController extends MenuBase {
+public class LoginControllerController extends ControllerBase {
 
     @FXML
     private TextField usernameField;
@@ -21,10 +22,17 @@ public class LoginMenuController extends MenuBase {
     private Label loginErrLabel;
 
     @FXML
+    private Button loginButton;
+
+    @FXML
     public void initialize() {
-        usernameField.setFocusTraversable(false);
-        passwordField.setFocusTraversable(false);
-        rememberMeCheckBox.setFocusTraversable(false);
+        // Set focus on login button
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                loginButton.requestFocus();
+            }
+        });
     }
 
     @FXML
