@@ -1,5 +1,6 @@
 package Client;
 
+import Shared.Server;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -28,23 +29,29 @@ public class LoginControllerController extends ControllerBase {
     @FXML
     private Button loginButton;
 
-    private final String credentialsFilePath = "./credentials";
+    private final ServerStubHolder serverStubHolder;
 
-    private boolean credentialsLoadedFromFile = false;
+    private final CredentialsManager credentialsManager;
 
-    private final ServerStubHolder serverStubHolder = ServerStubHolder.getInstance();
+    private boolean credentialsLoadedFromFile;
+
+    public LoginControllerController() {
+        serverStubHolder = ServerStubHolder.getInstance();
+        credentialsManager = new CredentialsManager("./credentials");
+        credentialsLoadedFromFile = false;
+    }
 
     @FXML
     public void initialize() {
         Platform.runLater(() -> {
             // Hide login error label
-            loginErrLabel.setVisible(false);
+            loginErrLabel.setText("");
 
             // Set focus on login button
             loginButton.requestFocus();
 
             // Load credentials from file (if applicable)
-            Credentials credentials = loadCredentialsFromFile();
+            Credentials credentials = credentialsManager.loadCredentialsFromFile();
             if (credentials != null) {
                 usernameField.setText(credentials.getUsername());
                 passwordField.setText(credentials.getPasswordHash());
@@ -63,7 +70,6 @@ public class LoginControllerController extends ControllerBase {
         // Validate username & password fields
         if (password.equals("") || username.equals("")) {
             loginErrLabel.setText("Invalid username and/or password");
-            loginErrLabel.setVisible(true);
             return;
         }
 
@@ -72,69 +78,42 @@ public class LoginControllerController extends ControllerBase {
         if (credentialsLoadedFromFile) {
             passwordHash = password;
         } else {
-            passwordHash = generatePasswordHash(password);
+            try {
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                md.update(password.getBytes());
+                byte[] digest = md.digest();
+                passwordHash = DatatypeConverter.printHexBinary(digest).toUpperCase();
+            } catch (NoSuchAlgorithmException ignored) {
+                passwordHash = "";
+            }
         }
 
         // Login to server
-        boolean loginSuccess = false;
+        Server.ReturnCode rc = Server.ReturnCode.NO_ERROR;
         try {
-             loginSuccess = serverStubHolder.getServerStub().handleLoginRequest(username, passwordHash);
+             rc = serverStubHolder.getServerStub().handleLoginRequest(username, passwordHash);
         } catch (RemoteException remoteException) {
             remoteException.printStackTrace();
         }
-        if (loginSuccess) {
-            System.out.println("Login succeeded");
 
+        // Handle response from server
+        if (rc == Server.ReturnCode.NO_ERROR) {
             // Save credentials
             if (rememberMeCheckBox.isSelected()) {
-                saveCredentialsToFile(username, passwordHash);
+                credentialsManager.saveCredentialsToFile(username, passwordHash);
             }
 
             // TODO: Enter game lobby
-            //changeScene(event, "");
-        } else {
+            //changeScene(event, "scene.fxml");
+        } else if (rc == Server.ReturnCode.INCORRECT_LOGIN_INFO) {
             loginErrLabel.setText("Incorrect username and/or password");
-            loginErrLabel.setVisible(true);
+        } else {
+            loginErrLabel.setText("Failed to login");
         }
     }
 
     @FXML
     void backButtonPress(ActionEvent event) throws IOException {
         changeScene(event, "fxml/OpeningMenu.fxml");
-    }
-
-    private String generatePasswordHash(String password) {
-        String result = "";
-        MessageDigest md = null;
-
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException ignored) {}
-
-        if (md != null) {
-            md.update(password.getBytes());
-            byte[] digest = md.digest();
-            result = DatatypeConverter.printHexBinary(digest).toUpperCase();
-        }
-
-        return result;
-    }
-
-    private Credentials loadCredentialsFromFile() {
-        try (FileInputStream fileIn = new FileInputStream(credentialsFilePath);
-             ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
-
-            return  (Credentials) (objectIn.readObject());
-        }
-        catch (IOException | ClassNotFoundException ignored) {}
-        return null;
-    }
-
-    private void saveCredentialsToFile(String username, String passwordHash) {
-        try (FileOutputStream fileOut = new FileOutputStream(credentialsFilePath);
-             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
-
-            objectOut.writeObject(new Credentials(username, passwordHash));
-        } catch (IOException ignored) {}
     }
 }

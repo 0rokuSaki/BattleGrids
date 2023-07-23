@@ -10,8 +10,25 @@ import java.rmi.server.UnicastRemoteObject;
 public class ServerImpl implements Server {
 
     @Override
-    public boolean handleLoginRequest(String username, String passwordHash) throws RemoteException {
-        return false;
+    public ReturnCode handleLoginRequest(String username, String passwordHash) throws RemoteException {
+        if (username.equals("0")) {
+            return ReturnCode.NO_ERROR;
+        }
+        if (username.equals("1")) {
+            return ReturnCode.INCORRECT_LOGIN_INFO;
+        }
+        return ReturnCode.GENERAL_ERROR;
+    }
+
+    @Override
+    public ReturnCode handleRegistrationRequest(String username, String passwordHash) throws RemoteException {
+        if (username.equals("0")) {
+            return ReturnCode.NO_ERROR;
+        }
+        if (username.equals("1")) {
+            return ReturnCode.USER_ALREADY_EXISTS;
+        }
+        return ReturnCode.GENERAL_ERROR;
     }
 
     public static void main(String[] args) throws RemoteException, AlreadyBoundException {
