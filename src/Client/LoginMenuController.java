@@ -12,7 +12,7 @@ import java.rmi.RemoteException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class LoginControllerController extends ControllerBase {
+public class LoginMenuController extends ControllerBase {
 
     @FXML
     private TextField usernameField;
@@ -35,7 +35,7 @@ public class LoginControllerController extends ControllerBase {
 
     private boolean credentialsLoadedFromFile;
 
-    public LoginControllerController() {
+    public LoginMenuController() {
         serverStubHolder = ServerStubHolder.getInstance();
         credentialsManager = new CredentialsManager("./credentials");
         credentialsLoadedFromFile = false;
