@@ -25,7 +25,7 @@
             <TextField fx:id="usernameField" promptText="Username" />
             <PasswordField fx:id="passwordField" promptText="Password" />
             <CheckBox fx:id="rememberMeCheckBox" mnemonicParsing="false" text="Remember Me" />
-            <Label fx:id="loginErrLabel" visible="false" />
+            <Label fx:id="loginErrLabel" textFill="RED" />
             <Button fx:id="loginButton" mnemonicParsing="false" onAction="#loginButtonPress" prefHeight="50.0" prefWidth="150.0" text="Login">
                <font>
                   <Font name="System Bold" size="18.0" />
