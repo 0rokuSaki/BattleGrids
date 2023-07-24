@@ -1,7 +1,6 @@
 package Client;
 
 import java.io.IOException;
-import java.net.URL;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 
@@ -13,13 +12,8 @@ public class LobbyMenuController extends ControllerBase {
     }
 
     @FXML
-    void friendsButtonPress(ActionEvent event) {
-
-    }
-
-    @FXML
-    void myProfileButtonPress(ActionEvent event) {
-
+    void myProfileButtonPress(ActionEvent event) throws IOException {
+        changeScene(event, "fxml/MyProfileMenu.fxml");
     }
 
     @FXML
