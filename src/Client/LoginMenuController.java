@@ -55,6 +55,7 @@ public class LoginMenuController extends ControllerBase {
             if (credentials != null) {
                 usernameField.setText(credentials.getUsername());
                 passwordField.setText(credentials.getPasswordHash());
+                rememberMeCheckBox.setSelected(true);
 
                 credentialsLoadedFromFile = true;
             }
@@ -90,6 +91,8 @@ public class LoginMenuController extends ControllerBase {
             // Save credentials
             if (rememberMeCheckBox.isSelected()) {
                 credentialsManager.saveCredentialsToFile(username, passwordHash);
+            } else if (credentialsLoadedFromFile) {
+                credentialsManager.deleteCredentialsFile();
             }
             changeScene(event, "fxml/LobbyMenu.fxml");
         } else {

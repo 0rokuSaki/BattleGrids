@@ -34,4 +34,9 @@ public class CredentialsManager {
             objectOut.writeObject(new Credentials(username, passwordHash));
         } catch (IOException ignored) {}
     }
+
+    public boolean deleteCredentialsFile() {
+        File credentialsFile = new File(credentialsFilePath);
+        return credentialsFile.delete();
+    }
 }
