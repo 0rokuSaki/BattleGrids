@@ -7,6 +7,8 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ClientImpl implements Client, Runnable {
 
@@ -22,6 +24,8 @@ public class ClientImpl implements Client, Runnable {
         return instance;
     }
 
+    private Lock lock;
+
     private String username;
 
     private Server serverStub;
@@ -29,6 +33,7 @@ public class ClientImpl implements Client, Runnable {
     private boolean connectedToServer;
 
     private ClientImpl() {
+        lock = new ReentrantLock();
         username = null;
         serverStub = null;
         connectedToServer = false;
@@ -42,12 +47,19 @@ public class ClientImpl implements Client, Runnable {
         this.username = username;
     }
 
-    public void setServerStub(Server serverStub) {
-        this.serverStub = serverStub;
-    }
-
     public Server getServerStub() {
         return serverStub;
+    }
+
+    public void logOut() {
+        lock.lock();
+        try {
+            serverStub.handleLogoutRequest(username);
+        } catch (RemoteException ignored) {}
+        username = null;
+        serverStub = null;
+        connectedToServer = false;
+        lock.unlock();
     }
 
     @Override

@@ -42,6 +42,14 @@ public class ServerImpl implements Server, Runnable {
     }
 
     @Override
+    public void handleLogoutRequest(String username) throws RemoteException {
+        if (connectedUsersPool.get(username) != null) {
+            connectedUsersPool.remove(username);
+            System.out.println("User " + username + " logged out");
+        }
+    }
+
+    @Override
     public String handleRegistrationRequest(String username, String password, String passwordVerification) throws RemoteException {
         if (dbManager.userExists(username)) {
             return "Username already exists";
