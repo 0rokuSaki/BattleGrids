@@ -32,11 +32,8 @@ public class RegistrationMenuController extends ControllerBase {
 
     private final ServerStubHolder serverStubHolder;
 
-    private final CredentialsManager credentialsManager;
-
     public RegistrationMenuController() {
         serverStubHolder = ServerStubHolder.getInstance();
-        credentialsManager = new CredentialsManager("./credentials");
     }
 
     @FXML
@@ -68,7 +65,7 @@ public class RegistrationMenuController extends ControllerBase {
         if (returnMessage.equals("")) {
             // Save credentials
             if (rememberMeCheckBox.isSelected()) {
-                credentialsManager.saveCredentialsToFile(username, password);
+                CredentialsManager.saveCredentials(username, password);
             }
             changeScene(event, "LobbyMenu.fxml");
         } else {

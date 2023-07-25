@@ -1,27 +1,13 @@
 package Client;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class CredentialsManager {
-    private String credentialsFilePath;
 
-    public CredentialsManager(String credentialsFilePath) {
-        this.credentialsFilePath = credentialsFilePath;
-    }
+    private static final String FILE_PATH = "./credentials";
 
-    public String getCredentialsFilePath() {
-        return credentialsFilePath;
-    }
-
-    public void setCredentialsFilePath(String credentialsFilePath) {
-        this.credentialsFilePath = credentialsFilePath;
-    }
-
-    public Credentials loadCredentialsFromFile() {
-        try (FileInputStream fileIn = new FileInputStream(credentialsFilePath);
+    public static Credentials loadCredentials() {
+        try (FileInputStream fileIn = new FileInputStream(FILE_PATH);
              ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
 
             return  (Credentials) (objectIn.readObject());
@@ -30,26 +16,16 @@ public class CredentialsManager {
         return null;
     }
 
-    public void saveCredentialsToFile(String username, String passwordHash) {
-        try (FileOutputStream fileOut = new FileOutputStream(credentialsFilePath);
+    public static void saveCredentials(final String username, final String password) {
+        try (FileOutputStream fileOut = new FileOutputStream(FILE_PATH);
              ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
 
-            objectOut.writeObject(new Credentials(username, passwordHash));
+            objectOut.writeObject(new Credentials(username, password));
         } catch (IOException ignored) {}
     }
 
-    public boolean deleteCredentialsFile() {
-        File credentialsFile = new File(credentialsFilePath);
+    public static boolean deleteCredentials() {
+        File credentialsFile = new File(FILE_PATH);
         return credentialsFile.delete();
-    }
-
-    public static String generatePasswordHash(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(password.getBytes());
-            byte[] digest = md.digest();
-            return DatatypeConverter.printHexBinary(digest).toUpperCase();
-        } catch (NoSuchAlgorithmException ignored) {}
-        return "";
     }
 }
