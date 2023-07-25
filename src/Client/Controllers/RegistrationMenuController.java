@@ -1,7 +1,7 @@
 package Client.Controllers;
 
+import Client.ClientImpl;
 import Client.CredentialsManager;
-import Client.ServerStubHolder;
 import Shared.Server;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -30,12 +30,6 @@ public class RegistrationMenuController extends ControllerBase {
     @FXML
     private Button registerButton;
 
-    private final ServerStubHolder serverStubHolder;
-
-    public RegistrationMenuController() {
-        serverStubHolder = ServerStubHolder.getInstance();
-    }
-
     @FXML
     public void initialize() {
         // Hide registration error label
@@ -58,17 +52,20 @@ public class RegistrationMenuController extends ControllerBase {
         String passwordVerification = verifyPasswordField.getText();
 
         // Register to server
-        Server serverStub = serverStubHolder.getServerStub();
+        Server serverStub = ClientImpl.getInstance().getServerStub();
         String returnMessage = serverStub.handleRegistrationRequest(username, password, passwordVerification);
 
         // Handle response from server
-        if (returnMessage.equals("")) {
+        if (returnMessage.equals("")) {  // Registration successful
+            // Set username for client
+            ClientImpl.getInstance().setUsername(username);
+
             // Save credentials
             if (rememberMeCheckBox.isSelected()) {
                 CredentialsManager.saveCredentials(username, password);
             }
             changeScene(event, "LobbyMenu.fxml");
-        } else {
+        } else {  // Registration failed
             regErrLabel.setText(returnMessage);
         }
     }

@@ -6,26 +6,26 @@ public class Credentials implements Serializable {
 
     private String username;
 
-    private String passwordHash;
+    private String password;
 
-    public Credentials(String username, String passwordHash) {
+    public Credentials(String username, String password) {
         this.username = username;
-        this.passwordHash = passwordHash;
+        this.password = password;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
     public void setUsername(String username) {
         this.username = username;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

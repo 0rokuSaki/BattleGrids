@@ -1,5 +1,6 @@
 package Client.Controllers;
 
+import Client.ClientImpl;
 import Client.Credentials;
 import Client.CredentialsManager;
 import Client.ServerStubHolder;
@@ -28,12 +29,9 @@ public class LoginMenuController extends ControllerBase {
     @FXML
     private Button loginButton;
 
-    private final ServerStubHolder serverStubHolder;
-
     private boolean loadedCredentials;
 
     public LoginMenuController() {
-        serverStubHolder = ServerStubHolder.getInstance();
         loadedCredentials = false;
     }
 
@@ -50,7 +48,7 @@ public class LoginMenuController extends ControllerBase {
             Credentials credentials = CredentialsManager.loadCredentials();
             if (credentials != null) {
                 usernameField.setText(credentials.getUsername());
-                passwordField.setText(credentials.getPasswordHash());
+                passwordField.setText(credentials.getPassword());
                 rememberMeCheckBox.setSelected(true);
 
                 loadedCredentials = true;
@@ -65,19 +63,24 @@ public class LoginMenuController extends ControllerBase {
         String password = passwordField.getText();
 
         // Login to server
-        Server serverStub = serverStubHolder.getServerStub();
+        Server serverStub = ClientImpl.getInstance().getServerStub();
         String returnMessage = serverStub.handleLoginRequest(username, password);
 
         // Handle response from server
-        if (returnMessage.equals("")) {
+        if (returnMessage.equals("")) { // Login successful
+            // Set username for client
+            ClientImpl.getInstance().setUsername(username);
+
             // Save credentials
             if (rememberMeCheckBox.isSelected()) {
                 CredentialsManager.saveCredentials(username, password);
             } else if (loadedCredentials) {
                 CredentialsManager.deleteCredentials();
             }
+
+            // Change to lobby menu
             changeScene(event, "LobbyMenu.fxml");
-        } else {
+        } else {  // Login failed
             loginErrLabel.setText(returnMessage);
         }
     }
