@@ -5,9 +5,9 @@ import java.rmi.RemoteException;
 
 public interface Server extends Remote {
 
-    String handleLoginRequest(String username, String passwordHash) throws RemoteException;
+    String handleLoginRequest(String username, String password) throws RemoteException;
 
-    String handleRegistrationRequest(String username, String passwordHash) throws RemoteException;
+    String handleRegistrationRequest(String username, String password, String passwordVerification) throws RemoteException;
 
-    String handleChangePasswordRequest(String username, String oldPasswordHash, String newPasswordHash) throws RemoteException;
+    String handleChangePasswordRequest(String username, String oldPassword, String newPassword, String newPasswordVerification) throws RemoteException;
 }

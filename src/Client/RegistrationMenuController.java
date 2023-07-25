@@ -6,11 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
-import java.rmi.RemoteException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class RegistrationMenuController extends ControllerBase {
 
@@ -60,33 +56,17 @@ public class RegistrationMenuController extends ControllerBase {
         // Get text from fields
         String username = usernameField.getText();
         String password = passwordField.getText();
-        String verifyPassword = verifyPasswordField.getText();
-
-        // Make sure passwords match
-        if (!password.equals(verifyPassword)) {
-            regErrLabel.setText("Passwords do not match");
-            return;
-        }
-
-        // Generate password hash
-        String passwordHash;
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(password.getBytes());
-            byte[] digest = md.digest();
-            passwordHash = DatatypeConverter.printHexBinary(digest).toUpperCase();
-        } catch (NoSuchAlgorithmException ignored) {
-            passwordHash = "";
-        }
+        String passwordVerification = verifyPasswordField.getText();
 
         // Register to server
-        String returnMessage = serverStubHolder.getServerStub().handleRegistrationRequest(username, passwordHash);
+        Server serverStub = serverStubHolder.getServerStub();
+        String returnMessage = serverStub.handleRegistrationRequest(username, password, passwordVerification);
 
         // Handle response from server
         if (returnMessage.equals("")) {
             // Save credentials
             if (rememberMeCheckBox.isSelected()) {
-                credentialsManager.saveCredentialsToFile(username, passwordHash);
+                credentialsManager.saveCredentialsToFile(username, password);
             }
             changeScene(event, "fxml/LobbyMenu.fxml");
         } else {
