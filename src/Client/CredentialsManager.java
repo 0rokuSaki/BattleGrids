@@ -1,6 +1,9 @@
 package Client;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class CredentialsManager {
     private String credentialsFilePath;
@@ -38,5 +41,15 @@ public class CredentialsManager {
     public boolean deleteCredentialsFile() {
         File credentialsFile = new File(credentialsFilePath);
         return credentialsFile.delete();
+    }
+
+    public static String generatePasswordHash(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(password.getBytes());
+            byte[] digest = md.digest();
+            return DatatypeConverter.printHexBinary(digest).toUpperCase();
+        } catch (NoSuchAlgorithmException ignored) {}
+        return "";
     }
 }
