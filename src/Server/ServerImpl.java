@@ -32,6 +32,22 @@ public class ServerImpl implements Server {
         return "";
     }
 
+    @Override
+    public String handleChangePasswordRequest(String username, String oldPasswordHash, String newPasswordHash) throws RemoteException {
+        String dbPasswordHash = dbManager.getPasswordHash(username);
+        if (dbPasswordHash == null) {
+            return "User does not exist";
+        }
+        if (!dbPasswordHash.equals(oldPasswordHash)) {
+            return "Old password is incorrect";
+        }
+        if (newPasswordHash.equals("")) {
+            return "New password is invalid";
+        }
+        dbManager.setPasswordHash(username, newPasswordHash);
+        return "";
+    }
+
     public static void main(String[] args) throws RemoteException, AlreadyBoundException {
         final int PORT = 54321;
         LocateRegistry.createRegistry(PORT);       // Create RMI Registry

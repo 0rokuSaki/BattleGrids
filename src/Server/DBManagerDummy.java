@@ -30,6 +30,11 @@ public class DBManagerDummy {
         saveUsersTable();
     }
 
+    public void setPasswordHash(String username, String passwordHash) {
+        usersTable.put(username, passwordHash);
+        saveUsersTable();
+    }
+
     private void loadUsersTable() {
         try (FileInputStream fileIn = new FileInputStream(usersTablePath);
              ObjectInputStream objIn = new ObjectInputStream(fileIn)) {
