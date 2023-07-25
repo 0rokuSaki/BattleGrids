@@ -1,4 +1,4 @@
-package Client;
+package Client.Controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
@@ -11,6 +11,8 @@ import java.io.IOException;
 
 public class ControllerBase {
     protected void changeScene(ActionEvent event, String fxmlName) throws IOException {
+        fxmlName = "../fxml/" + fxmlName;
+
         Parent root = FXMLLoader.load(getClass().getResource(fxmlName));
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         Scene prevScene = (Scene) ((Node) event.getSource()).getScene();

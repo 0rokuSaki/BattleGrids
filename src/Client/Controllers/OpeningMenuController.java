@@ -1,4 +1,4 @@
-package Client;
+package Client.Controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -9,12 +9,12 @@ public class OpeningMenuController extends ControllerBase {
 
     @FXML
     void loginButtonPress(ActionEvent event) throws IOException {
-        changeScene(event, "fxml/LoginMenu.fxml");
+        changeScene(event, "LoginMenu.fxml");
     }
 
     @FXML
     void registerButtonPress(ActionEvent event) throws IOException {
-        changeScene(event, "fxml/RegistrationMenu.fxml");
+        changeScene(event, "RegistrationMenu.fxml");
     }
 
     @FXML

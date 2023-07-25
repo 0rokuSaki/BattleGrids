@@ -1,5 +1,6 @@
-package Client;
+package Client.Controllers;
 
+import Client.Controllers.ControllerBase;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.layout.GridPane;
@@ -13,6 +14,6 @@ public class GamesMenuController extends ControllerBase {
 
     @FXML
     void backButtonPress(ActionEvent event) throws IOException {
-        changeScene(event, "fxml/LobbyMenu.fxml");
+        changeScene(event, "LobbyMenu.fxml");
     }
 }

@@ -28,6 +28,9 @@ public class ServerImpl implements Server {
         if (dbManager.userExists(username)) {
             return "Username already exists";
         }
+        if (username.equals("")) {
+            return "Invalid username";
+        }
         if (!password.equals(passwordVerification)) {
             return "Passwords do not match";
         }

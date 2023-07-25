@@ -1,5 +1,8 @@
-package Client;
+package Client.Controllers;
 
+import Client.Credentials;
+import Client.CredentialsManager;
+import Client.ServerStubHolder;
 import Shared.Server;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -76,7 +79,7 @@ public class LoginMenuController extends ControllerBase {
             } else if (credentialsLoadedFromFile) {
                 credentialsManager.deleteCredentialsFile();
             }
-            changeScene(event, "fxml/LobbyMenu.fxml");
+            changeScene(event, "LobbyMenu.fxml");
         } else {
             loginErrLabel.setText(returnMessage);
         }
