@@ -8,8 +8,6 @@ public class Credentials implements Serializable {
 
     private String passwordHash;
 
-    public Credentials() {}
-
     public Credentials(String username, String passwordHash) {
         this.username = username;
         this.passwordHash = passwordHash;

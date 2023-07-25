@@ -30,14 +30,11 @@ public class LoginMenuController extends ControllerBase {
 
     private final ServerStubHolder serverStubHolder;
 
-    private final CredentialsManager credentialsManager;
-
-    private boolean credentialsLoadedFromFile;
+    private boolean loadedCredentials;
 
     public LoginMenuController() {
         serverStubHolder = ServerStubHolder.getInstance();
-        credentialsManager = new CredentialsManager("./credentials");
-        credentialsLoadedFromFile = false;
+        loadedCredentials = false;
     }
 
     @FXML
@@ -50,13 +47,13 @@ public class LoginMenuController extends ControllerBase {
             loginButton.requestFocus();
 
             // Load credentials from file (if applicable)
-            Credentials credentials = credentialsManager.loadCredentialsFromFile();
+            Credentials credentials = CredentialsManager.loadCredentials();
             if (credentials != null) {
                 usernameField.setText(credentials.getUsername());
                 passwordField.setText(credentials.getPasswordHash());
                 rememberMeCheckBox.setSelected(true);
 
-                credentialsLoadedFromFile = true;
+                loadedCredentials = true;
             }
         });
     }
@@ -75,9 +72,9 @@ public class LoginMenuController extends ControllerBase {
         if (returnMessage.equals("")) {
             // Save credentials
             if (rememberMeCheckBox.isSelected()) {
-                credentialsManager.saveCredentialsToFile(username, password);
-            } else if (credentialsLoadedFromFile) {
-                credentialsManager.deleteCredentialsFile();
+                CredentialsManager.saveCredentials(username, password);
+            } else if (loadedCredentials) {
+                CredentialsManager.deleteCredentials();
             }
             changeScene(event, "LobbyMenu.fxml");
         } else {
@@ -87,6 +84,6 @@ public class LoginMenuController extends ControllerBase {
 
     @FXML
     void backButtonPress(ActionEvent event) throws IOException {
-        changeScene(event, "fxml/OpeningMenu.fxml");
+        changeScene(event, "OpeningMenu.fxml");
     }
 }

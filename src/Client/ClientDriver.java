@@ -14,8 +14,6 @@ import java.rmi.registry.Registry;
 public class ClientDriver extends Application {
     @Override
     public void start(Stage stage) throws Exception {
-        System.out.println("Hash = " + CredentialsManager.generatePasswordHash(""));
-
 
         // Set up connection to server
         final String HOST_ADDR = "localhost";
