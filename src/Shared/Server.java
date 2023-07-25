@@ -5,6 +5,10 @@ import java.rmi.RemoteException;
 
 public interface Server extends Remote {
 
+    void probe() throws RemoteException;
+
+    boolean handleKeepAlive(String username) throws RemoteException;
+
     String handleLoginRequest(String username, String password) throws RemoteException;
 
     String handleRegistrationRequest(String username, String password, String passwordVerification) throws RemoteException;

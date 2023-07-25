@@ -2,6 +2,7 @@ package Client.Controllers;
 
 import java.io.IOException;
 
+import Client.ClientImpl;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 
@@ -19,6 +20,7 @@ public class LobbyMenuController extends ControllerBase {
 
     @FXML
     void logOutButtonPress(ActionEvent event) throws IOException {
+        ClientImpl.getInstance().setUsername(null);
         changeScene(event, "OpeningMenu.fxml");
     }
 }

@@ -1,6 +1,9 @@
 package Client.Controllers;
 
+import Client.ClientImpl;
 import Client.Controllers.ControllerBase;
+import Client.CredentialsManager;
+import Shared.Server;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,6 +13,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.paint.Color;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 
 public class ChangePasswordMenuController extends ControllerBase {
 
@@ -31,7 +35,6 @@ public class ChangePasswordMenuController extends ControllerBase {
     @FXML
     public void initialize() {
         Platform.runLater(() -> {
-
             // Set focus on accept button
             acceptButton.requestFocus();
 
@@ -41,10 +44,28 @@ public class ChangePasswordMenuController extends ControllerBase {
     }
 
     @FXML
-    void acceptButtonPress(ActionEvent event) {
+    void acceptButtonPress(ActionEvent event) throws RemoteException {
+        // Get username, old password and new password
+        String username = ClientImpl.getInstance().getUsername();
         String oldPassword = oldPasswordField.getText();
         String newPassword = newPasswordField.getText();
-        String newPasswordVerify = verifyNewPasswordField.getText();
+        String newPasswordVerification = verifyNewPasswordField.getText();
+
+        // Change password on server
+        Server serverStub = ClientImpl.getInstance().getServerStub();
+        String returnMessage = serverStub.handleChangePasswordRequest(username, oldPassword, newPassword, newPasswordVerification);
+
+        // Handle response from server
+        if (returnMessage.equals("")) {
+            // Delete saved credentials
+            CredentialsManager.deleteCredentials();
+
+            // Inform user about success
+            infoLabel.setTextFill(Color.GREEN);
+            infoLabel.setText("Password changed successfully");
+        } else {
+            infoLabel.setText(returnMessage);  // Inform user about failure
+        }
     }
 
     @FXML
