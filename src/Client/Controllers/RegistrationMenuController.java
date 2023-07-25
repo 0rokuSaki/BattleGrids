@@ -1,5 +1,7 @@
-package Client;
+package Client.Controllers;
 
+import Client.CredentialsManager;
+import Client.ServerStubHolder;
 import Shared.Server;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -68,7 +70,7 @@ public class RegistrationMenuController extends ControllerBase {
             if (rememberMeCheckBox.isSelected()) {
                 credentialsManager.saveCredentialsToFile(username, password);
             }
-            changeScene(event, "fxml/LobbyMenu.fxml");
+            changeScene(event, "LobbyMenu.fxml");
         } else {
             regErrLabel.setText(returnMessage);
         }
@@ -76,6 +78,6 @@ public class RegistrationMenuController extends ControllerBase {
 
     @FXML
     void backButtonPress(ActionEvent event) throws IOException {
-        changeScene(event, "fxml/OpeningMenu.fxml");
+        changeScene(event, "OpeningMenu.fxml");
     }
 }

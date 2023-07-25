@@ -1,5 +1,6 @@
-package Client;
+package Client.Controllers;
 
+import Client.Controllers.ControllerBase;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -48,6 +49,6 @@ public class ChangePasswordMenuController extends ControllerBase {
 
     @FXML
     void backButtonPress(ActionEvent event) throws IOException {
-        changeScene(event, "fxml/MyProfileMenu.fxml");
+        changeScene(event, "MyProfileMenu.fxml");
     }
 }
