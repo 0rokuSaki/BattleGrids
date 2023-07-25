@@ -38,6 +38,7 @@ public class ServerImpl implements Server, Runnable {
             return "Incorrect username and/or password";
         }
         connectedUsersPool.put(username, 1);
+        System.out.println("User " + username + " logged in");
         return "";
     }
 
@@ -65,13 +66,14 @@ public class ServerImpl implements Server, Runnable {
         }
         dbManager.setUser(username, getMd5DigestString(password));
         connectedUsersPool.put(username, 1);
+        System.out.println("User " + username + " registered");
         return "";
     }
 
     @Override
     public String handleChangePasswordRequest(String username, String oldPassword, String newPassword, String newPasswordVerification) throws RemoteException {
         if (connectedUsersPool.get(username) == null) {
-            return null;
+            return "Unable to identify user";
         }
         String passwordHash = dbManager.getPasswordHash(username);
         if (passwordHash == null) {
@@ -87,6 +89,7 @@ public class ServerImpl implements Server, Runnable {
             return PasswordValidator.getPasswordCriteria();
         }
         dbManager.setPasswordHash(username, getMd5DigestString(newPassword));
+        System.out.println("User " + username + " changed password");
         return "";
     }
 
