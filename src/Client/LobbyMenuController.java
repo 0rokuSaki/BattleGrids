@@ -7,8 +7,8 @@ import javafx.fxml.FXML;
 public class LobbyMenuController extends ControllerBase {
 
     @FXML
-    void playGamesButtonPress(ActionEvent event) {
-
+    void playGamesButtonPress(ActionEvent event) throws IOException {
+        changeScene(event, "fxml/GamesMenu.fxml");
     }
 
     @FXML
