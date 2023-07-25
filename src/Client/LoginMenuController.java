@@ -6,11 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.*;
-import java.rmi.RemoteException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class LoginMenuController extends ControllerBase {
 
@@ -68,29 +64,15 @@ public class LoginMenuController extends ControllerBase {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        // Generate password hash (if applicable)
-        String passwordHash;
-        if (credentialsLoadedFromFile) {
-            passwordHash = password;
-        } else {
-            try {
-                MessageDigest md = MessageDigest.getInstance("MD5");
-                md.update(password.getBytes());
-                byte[] digest = md.digest();
-                passwordHash = DatatypeConverter.printHexBinary(digest).toUpperCase();
-            } catch (NoSuchAlgorithmException ignored) {
-                passwordHash = "";
-            }
-        }
-
         // Login to server
-        String returnMessage = serverStubHolder.getServerStub().handleLoginRequest(username, passwordHash);
+        Server serverStub = serverStubHolder.getServerStub();
+        String returnMessage = serverStub.handleLoginRequest(username, password);
 
         // Handle response from server
         if (returnMessage.equals("")) {
             // Save credentials
             if (rememberMeCheckBox.isSelected()) {
-                credentialsManager.saveCredentialsToFile(username, passwordHash);
+                credentialsManager.saveCredentialsToFile(username, password);
             } else if (credentialsLoadedFromFile) {
                 credentialsManager.deleteCredentialsFile();
             }

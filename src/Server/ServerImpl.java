@@ -2,50 +2,69 @@ package Server;
 
 import Shared.Server;
 
+import javax.xml.bind.DatatypeConverter;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class ServerImpl implements Server {
 
     private final DBManagerDummy dbManager = new DBManagerDummy();
 
     @Override
-    public String handleLoginRequest(String username, String passwordHash) throws RemoteException {
-        String dbPasswordHash = dbManager.getPasswordHash(username);
-        if (dbPasswordHash != null && dbPasswordHash.equals(passwordHash)) {
+    public String handleLoginRequest(String username, String password) throws RemoteException {
+        String passwordHash = dbManager.getPasswordHash(username);
+        if (passwordHash != null && passwordHash.equals(getMd5DigestString(password))) {
             return "";
         }
         return "Incorrect username and/or password";
     }
 
     @Override
-    public String handleRegistrationRequest(String username, String passwordHash) throws RemoteException {
+    public String handleRegistrationRequest(String username, String password, String passwordVerification) throws RemoteException {
         if (dbManager.userExists(username)) {
             return "Username already exists";
         }
-        if (username.equals("") || passwordHash.equals("")) {
-            return "Invalid username and/or password";
+        if (!password.equals(passwordVerification)) {
+            return "Passwords do not match";
         }
-        dbManager.setUser(username, passwordHash);
+        if (!PasswordValidator.validatePassword(password)) {
+            return PasswordValidator.getPasswordCriteria();
+        }
+        dbManager.setUser(username, getMd5DigestString(password));
         return "";
     }
 
     @Override
-    public String handleChangePasswordRequest(String username, String oldPasswordHash, String newPasswordHash) throws RemoteException {
-        String dbPasswordHash = dbManager.getPasswordHash(username);
-        if (dbPasswordHash == null) {
+    public String handleChangePasswordRequest(String username, String oldPassword, String newPassword, String newPasswordVerification) throws RemoteException {
+        String passwordHash = dbManager.getPasswordHash(username);
+        if (passwordHash == null) {
             return "User does not exist";
         }
-        if (!dbPasswordHash.equals(oldPasswordHash)) {
+        if (!passwordHash.equals(getMd5DigestString(oldPassword))) {
             return "Old password is incorrect";
         }
-        if (newPasswordHash.equals("")) {
-            return "New password is invalid";
+        if (!newPassword.equals(newPasswordVerification)) {
+            return "Passwords do not match";
         }
-        dbManager.setPasswordHash(username, newPasswordHash);
+        if (!PasswordValidator.validatePassword(newPassword)) {
+            return PasswordValidator.getPasswordCriteria();
+        }
+        dbManager.setPasswordHash(username, getMd5DigestString(newPassword));
         return "";
+    }
+
+    private static String getMd5DigestString(String inputString) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(inputString.getBytes());
+            byte[] digest = md.digest();
+            return DatatypeConverter.printHexBinary(digest).toUpperCase();
+        } catch (NoSuchAlgorithmException ignored) {}
+        return null;
     }
 
     public static void main(String[] args) throws RemoteException, AlreadyBoundException {
