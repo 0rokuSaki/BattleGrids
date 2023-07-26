@@ -24,7 +24,7 @@ public class ClientImpl implements Client, Runnable {
         return instance;
     }
 
-    private Lock lock;
+    private final Lock lock;
 
     private String username;
 
@@ -39,32 +39,64 @@ public class ClientImpl implements Client, Runnable {
         connectedToServer = false;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public Server getServerStub() {
-        return serverStub;
+    public String logIn(String username, String password) {
+        String returnMessage;
+        lock.lock();
+        try {
+            returnMessage = serverStub.handleLoginRequest(username, password);
+            if (returnMessage.equals("")) {
+                this.username = username;
+            }
+        } catch (NullPointerException | RemoteException ignored) {
+            returnMessage = "Cannot reach server";
+        }
+        lock.unlock();
+        return returnMessage;
     }
 
     public void logOut() {
         lock.lock();
         try {
             serverStub.handleLogoutRequest(username);
-        } catch (RemoteException ignored) {}
+        } catch (NullPointerException | RemoteException ignored) {}
         username = null;
         serverStub = null;
         connectedToServer = false;
         lock.unlock();
     }
 
+    public String register(String username, String password, String passwordVerification) {
+        String returnMessage;
+        lock.lock();
+        try {
+            returnMessage = serverStub.handleRegistrationRequest(username, password, passwordVerification);
+            if (returnMessage.equals("")) {
+                this.username = username;
+            }
+        } catch (NullPointerException | RemoteException ignored) {
+            returnMessage = "Cannot reach server";
+        }
+        lock.unlock();
+        return returnMessage;
+    }
+
+    public String changePassword(String oldPassword, String newPassword, String newPasswordVerification) {
+        String returnMessage;
+        lock.lock();
+        try {
+            returnMessage = serverStub.handleChangePasswordRequest(username, oldPassword, newPassword, newPasswordVerification);
+        } catch (NullPointerException | RemoteException ignored) {
+            returnMessage = "Cannot reach server";
+        }
+        lock.unlock();
+        return returnMessage;
+    }
+
     @Override
     public void run() {
         while (true) {
+            lock.lock();
+
             // Test connection to server; Attempt to reconnect if there is no connection
             if (connectedToServer) {
                 connectedToServer = testConnectionToServer();
@@ -76,6 +108,8 @@ public class ClientImpl implements Client, Runnable {
             if (connectedToServer && username != null) {
                 sendKeepAliveToServer();
             }
+
+            lock.unlock();
 
             // Sleep some time
             try {

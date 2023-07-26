@@ -2,7 +2,6 @@ package Client.Controllers;
 
 import Client.ClientImpl;
 import Client.CredentialsManager;
-import Shared.Server;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -52,14 +51,10 @@ public class RegistrationMenuController extends ControllerBase {
         String passwordVerification = verifyPasswordField.getText();
 
         // Register to server
-        Server serverStub = ClientImpl.getInstance().getServerStub();
-        String returnMessage = serverStub.handleRegistrationRequest(username, password, passwordVerification);
+        String returnMessage = ClientImpl.getInstance().register(username, password, passwordVerification);
 
         // Handle response from server
         if (returnMessage.equals("")) {  // Registration successful
-            // Set username for client
-            ClientImpl.getInstance().setUsername(username);
-
             // Save credentials
             if (rememberMeCheckBox.isSelected()) {
                 CredentialsManager.saveCredentials(username, password);

@@ -3,8 +3,6 @@ package Client.Controllers;
 import Client.ClientImpl;
 import Client.Credentials;
 import Client.CredentialsManager;
-import Client.ServerStubHolder;
-import Shared.Server;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -63,14 +61,10 @@ public class LoginMenuController extends ControllerBase {
         String password = passwordField.getText();
 
         // Login to server
-        Server serverStub = ClientImpl.getInstance().getServerStub();
-        String returnMessage = serverStub.handleLoginRequest(username, password);
+        String returnMessage = ClientImpl.getInstance().logIn(username, password);
 
         // Handle response from server
         if (returnMessage.equals("")) { // Login successful
-            // Set username for client
-            ClientImpl.getInstance().setUsername(username);
-
             // Save credentials
             if (rememberMeCheckBox.isSelected()) {
                 CredentialsManager.saveCredentials(username, password);

@@ -12,8 +12,7 @@ public class ClientDriver extends Application {
     @Override
     public void start(Stage stage) throws Exception {
 
-        Thread thread = new Thread(ClientImpl.getInstance());
-        thread.start();
+        new Thread(ClientImpl.getInstance()).start();
 
         URL url = getClass().getResource("fxml/OpeningMenu.fxml");
         Parent root = FXMLLoader.load(url);

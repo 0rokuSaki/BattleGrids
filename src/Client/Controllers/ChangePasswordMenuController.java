@@ -46,14 +46,12 @@ public class ChangePasswordMenuController extends ControllerBase {
     @FXML
     void acceptButtonPress(ActionEvent event) throws RemoteException {
         // Get username, old password and new password
-        String username = ClientImpl.getInstance().getUsername();
         String oldPassword = oldPasswordField.getText();
         String newPassword = newPasswordField.getText();
         String newPasswordVerification = verifyNewPasswordField.getText();
 
         // Change password on server
-        Server serverStub = ClientImpl.getInstance().getServerStub();
-        String returnMessage = serverStub.handleChangePasswordRequest(username, oldPassword, newPassword, newPasswordVerification);
+        String returnMessage = ClientImpl.getInstance().changePassword(oldPassword, newPassword, newPasswordVerification);
 
         // Handle response from server
         if (returnMessage.equals("")) {
