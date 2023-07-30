@@ -54,12 +54,18 @@ public class DBManagerImpl implements DBManager {
     }
 
 
-
-    public void setPassword(String password)
+/*
+    public String setPassword(String password)
     {
-        System.out.println("setPassword");
-    }
+        try{
+            return (password);
+        }catch ()
+        {
+            return null;
+        }
 
+    }
+*/
     public String getPassword() throws SQLException
     {
         try{
