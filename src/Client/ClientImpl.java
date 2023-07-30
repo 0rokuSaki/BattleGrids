@@ -32,11 +32,14 @@ public class ClientImpl implements Client, Runnable {
 
     private boolean connectedToServer;
 
+    private boolean running;
+
     private ClientImpl() {
         lock = new ReentrantLock();
         username = null;
         serverStub = null;
         connectedToServer = false;
+        running = true;
     }
 
     public String logIn(String username, String password) {
@@ -92,9 +95,13 @@ public class ClientImpl implements Client, Runnable {
         return returnMessage;
     }
 
+    public void stop() {
+        running = false;
+    }
+
     @Override
     public void run() {
-        while (true) {
+        while (running) {
             lock.lock();
 
             // Test connection to server; Attempt to reconnect if there is no connection

@@ -21,4 +21,9 @@ public class ClientDriver extends Application {
         stage.setScene(scene);
         stage.show();
     }
+
+    @Override
+    public void stop() {
+        ClientImpl.getInstance().stop();
+    }
 }
