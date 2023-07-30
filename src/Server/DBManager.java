@@ -11,15 +11,25 @@ public interface DBManager {
 
 
 
-    public void deleteUsersTable(Statement statement) throws SQLException;
-    public void createUsersTable(Statement statement) throws ClassNotFoundException, SQLException;
-    public void printUsersTable(Statement statement) throws SQLException;
-    public void addUser(Statement statement, String username, String password) throws SQLException;
-    public void setUserName(Statement statement, String username);
-    public void setPassword(Statement statement, String password);
-    public void getPassword(Statement statement) throws SQLException;
-    public boolean isUserNameExist(Statement statement, String username) throws SQLException;
-    public boolean validLogIn(Statement statement, String password);
+    public void deleteUsersTable() throws SQLException;
+
+
+
+
+    public void createUsersTable() throws ClassNotFoundException, SQLException;
+    public void printUsersTable() throws SQLException;
+
+
+
+    public void addUser(String username, String password) throws SQLException;
+
+
+
+    public void setUserName(String username);
+    public void setPassword(String password);
+    public String getPassword() throws SQLException;
+    public boolean isUserNameExist(String username) throws SQLException;
+    public boolean validLogIn(String password);
 
 
 
