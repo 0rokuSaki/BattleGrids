@@ -37,9 +37,6 @@ public class ChangePasswordMenuController extends ControllerBase {
         Platform.runLater(() -> {
             // Set focus on accept button
             acceptButton.requestFocus();
-
-            // Set info label style
-            infoLabel.setTextFill(Color.RED);
         });
     }
 
@@ -62,7 +59,9 @@ public class ChangePasswordMenuController extends ControllerBase {
             infoLabel.setTextFill(Color.GREEN);
             infoLabel.setText("Password changed successfully");
         } else {
-            infoLabel.setText(returnMessage);  // Inform user about failure
+            // Inform user about failure
+            infoLabel.setTextFill(Color.RED);
+            infoLabel.setText(returnMessage);
         }
     }
 
