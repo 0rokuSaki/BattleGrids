@@ -19,8 +19,8 @@ public class Server {
 
         DB.printUsersTable();
 
-        DB.getPassword();
+        //DB.getPassword();
 
-        DB.isUserNameExist("u2");
+        //DB.isUserNameExist("u2");
     }
 }
