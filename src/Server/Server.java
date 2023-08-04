@@ -13,14 +13,15 @@ public class Server {
 
         DBManager DB = new DBManagerImpl();
         DB.createUsersTable();
-
         DB.addUser( "u1","p1");
         DB.addUser("u2","p2");
-
         DB.printUsersTable();
+        DB.setPassword("u2","p3");
+        DB.printUsersTable();
+        System.out.println(DB.getPassword("u1"));
 
-        //DB.getPassword();
+        System.out.println(DB.isUserNameExist("u3"));
 
-        //DB.isUserNameExist("u2");
+        System.out.println(DB.validLogIn("u2","p3"));
     }
 }

@@ -12,8 +12,7 @@ public class DBManagerImpl implements DBManager {
     private Statement statement;
     private Connection connection;
 
-    public DBManagerImpl()
-    {
+    public DBManagerImpl()  {
         try
         {
             Class.forName("com.mysql.cj.jdbc.Driver");//loading driver
@@ -21,27 +20,28 @@ public class DBManagerImpl implements DBManager {
             statement = connection.createStatement();//creating statement
         }catch (Exception e)
         {
-            //add
+            //what should I do here???!!!
         }
 
     }
 
-    public void deleteUsersTable() throws SQLException
-    {
-        statement.executeUpdate("DROP TABLE IF EXISTS users");//deleting table "users"
+    public void deleteUsersTable() {
+        try{
+            statement.executeUpdate("DROP TABLE IF EXISTS users");//deleting table "users"
+        }catch (Exception exception)
+        {
+            System.out.println("cant delete table");
+        }
     }
 
-    public void createUsersTable() throws ClassNotFoundException, SQLException
-    {
+    public void createUsersTable() throws SQLException {
         statement.executeUpdate("CREATE DATABASE IF NOT EXISTS mydatabase");
         statement.executeUpdate("USE mydatabase");////using mydatabase
         deleteUsersTable();
         statement.executeUpdate("CREATE TABLE users (username varchar (10) PRIMARY KEY, password varchar (10))");//creating table "users"
     }
 
-
-    public String printUsersTable() throws SQLException
-    {
+    public String printUsersTable()  {
         try
         {
             ResultSet resultset = statement.executeQuery("SELECT * FROM users");
@@ -50,74 +50,84 @@ public class DBManagerImpl implements DBManager {
                 String passwordValue = resultset.getString("password");
                 System.out.println("Username: " + usernameValue + ", Password: " + passwordValue);
             }
-            return ("need to add something here");
-        }catch (SQLException e)
+            return("UsersTable");
+        }catch (SQLException exception)
         {
             return null;
         }
 
     }
 
-
-    public String addUser(String username, String password) throws SQLException
-    {
+    public String addUser(String username, String password) {
         try{
             statement.executeUpdate("INSERT INTO users VALUES ('" + username + "', '" + password + "')");
             return (username);
-        }catch (SQLException e)
+        }catch (SQLException exception)
         {
             return null;
         }
 
-    }
+    } //להוסיף בדיקה האם בשם משתמש קיים
 
+    public String setPassword(String username, String password) {
+        try {
+            // Check if the user exists in the table
+            String checkUserQuery = "SELECT * FROM users WHERE username = '" + username + "'";
+            ResultSet resultSet = statement.executeQuery(checkUserQuery);
+            if (!resultSet.next()) {
+                resultSet.close();
+                return "";//user name doesnt exist
+            }
 
-/*
-    public String setPassword(String password)
-    {
-        try{
-            return (password);
-        }catch ()
-        {
+            // Update the password for the user
+            String updateQuery = "UPDATE users SET password = '" + password + "' WHERE username = '" + username + "'";
+            statement.executeUpdate(updateQuery);
+
+            resultSet.close();
+            return password;
+
+        } catch (SQLException exception) {
+            exception.printStackTrace();
             return null;
         }
-
     }
 
-    public String getPassword() throws SQLException
-    {
+    public String getPassword(String username) {
         try{
             ResultSet resultSet = statement.executeQuery("SELECT password FROM users WHERE username = 'u2'");
-            if (resultSet.next()) {
+            if (resultSet.next())
+            {
                 String password = resultSet.getString("password");
+                resultSet.close();
                 return(password);
-            } else {
-                System.out.println("User not found");
             }
-            resultSet.close();
-        }catch (SQLException SQLexception)
+            else {
+                resultSet.close();
+                return("");
+            }
+        }catch (SQLException exception)
         {
             return (null);
         }
-
     }
 
     public Boolean isUserNameExist(String u) throws SQLException {
-        //ResultSet resultSet = statement.executeQuery("EXISTS * FROM users WHERE username = 'u'");
-        String s = "SELECT EXISTS (SELECT 1 FROM users WHERE username = '" + u + "')";
-        System.out.println(s);
-        return true;
+        try
+        {
+            return(statement.executeQuery("SELECT EXISTS (SELECT * FROM users WHERE username = '" + u + "')").next() && statement.getResultSet().getBoolean(1));
+        }catch (Exception exception)
+        {
+            return null;
+        }
     }
 
-    public Boolean validLogIn(String password)
-    {
-        System.out.println("validLogIn");
-        return true;
+    public Boolean validLogIn(String username, String password) throws SQLException {
+        try
+        {
+            return (statement.executeQuery("SELECT EXISTS (SELECT * FROM users WHERE username = '" + username + "' and password='"+password+"')").next() && statement.getResultSet().getBoolean(1));
+        }catch (SQLException exception)
+        {
+            return null;
+        }
     }
-*/
-
-
 }
-
-
-
