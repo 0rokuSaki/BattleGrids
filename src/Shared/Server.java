@@ -16,4 +16,8 @@ public interface Server extends Remote {
     String handleRegistrationRequest(String username, String password, String passwordVerification) throws RemoteException;
 
     String handleChangePasswordRequest(String username, String oldPassword, String newPassword, String newPasswordVerification) throws RemoteException;
+
+    String[] handleGetGamesListRequest() throws RemoteException;
+
+    String handlePlayGameRequest(String username, String gameName) throws RemoteException;
 }
