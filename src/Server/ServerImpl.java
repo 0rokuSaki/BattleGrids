@@ -19,6 +19,8 @@ public class ServerImpl implements Server, Runnable {
 
     private final ConcurrentHashMap<String, Integer> connectedUsersPool = new ConcurrentHashMap<>();
 
+    private final String[] gamesList = {"Tic Tac Toe", "Submarines", "War"};
+
     @Override
     public void probe() throws RemoteException {}
 
@@ -91,6 +93,16 @@ public class ServerImpl implements Server, Runnable {
         dbManager.setPasswordHash(username, getMd5DigestString(newPassword));
         System.out.println("User " + username + " changed password");
         return "";
+    }
+
+    @Override
+    public String[] handleGetGamesListRequest() throws RemoteException {
+        return gamesList;
+    }
+
+    @Override
+    public String handlePlayGameRequest(String username, String gameName) throws RemoteException {
+        return "Internal server error";
     }
 
     private static String getMd5DigestString(String inputString) {

@@ -95,6 +95,26 @@ public class ClientImpl implements Client, Runnable {
         return returnMessage;
     }
 
+    public String[] getGamesList() {
+        try {
+            return serverStub.handleGetGamesListRequest();
+        } catch (RemoteException ignored) {
+            return null;
+        }
+    }
+
+    public String playGame(String gameName) {
+        String returnMessage;
+        lock.lock();
+        try {
+            returnMessage = serverStub.handlePlayGameRequest(username, gameName);
+        } catch (RemoteException ignored) {
+            returnMessage = "Cannot reach server";
+        }
+        lock.unlock();
+        return returnMessage;
+    }
+
     public void stop() {
         running = false;
     }
