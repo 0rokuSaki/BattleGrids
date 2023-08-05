@@ -9,17 +9,28 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerImpl implements Server, Runnable {
 
-    private final DBManagerDummy dbManager = new DBManagerDummy();
+    private final DBManagerDummy dbManager;
 
-    private final ConcurrentHashMap<String, Integer> connectedUsersPool = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Integer> connectedUsersPool;
 
-    private final String[] gamesList = {"Tic Tac Toe", "Submarines", "War"};
+    private final HashMap<String, Queue<String>> gameWaitingQueues;
+
+    private final ArrayList<String> gamesList;
+
+    public ServerImpl() {
+        dbManager = new DBManagerDummy();
+        connectedUsersPool = new ConcurrentHashMap<>();
+        gamesList = new ArrayList<>(Arrays.asList("Tic-Tac-Toe", "Connect Four"));
+        gameWaitingQueues = new HashMap<>();
+        for (String game : gamesList) {
+            gameWaitingQueues.put(game, new LinkedList<>());
+        }
+    }
 
     @Override
     public void probe() throws RemoteException {}
@@ -35,6 +46,9 @@ public class ServerImpl implements Server, Runnable {
 
     @Override
     public String handleLoginRequest(String username, String password) throws RemoteException {
+        if (connectedUsersPool.get(username) != null) {
+            return "User is already logged in";
+        }
         String passwordHash = dbManager.getPasswordHash(username);
         if (passwordHash == null || !passwordHash.equals(getMd5DigestString(password))) {
             return "Incorrect username and/or password";
@@ -96,13 +110,30 @@ public class ServerImpl implements Server, Runnable {
     }
 
     @Override
-    public String[] handleGetGamesListRequest() throws RemoteException {
+    public ArrayList<String> handleGetGamesListRequest() throws RemoteException {
         return gamesList;
     }
 
     @Override
-    public String handlePlayGameRequest(String username, String gameName) throws RemoteException {
-        return "Internal server error";
+    public synchronized String handlePlayGameRequest(String username, String gameName) throws RemoteException {
+        if (connectedUsersPool.get(username) == null) {
+            return "Unable to identify user";
+        }
+        Queue<String> waitingQueue = gameWaitingQueues.get(gameName);
+        if (waitingQueue == null) {
+            return "Invalid game selected";
+        }
+        if (waitingQueue.isEmpty()) {
+            waitingQueue.add(username);
+            return "";
+        }
+        String otherUser = waitingQueue.poll();
+        if (otherUser == null) {
+            return "Internal server error";
+        }
+        System.out.println("LET THE GAME BEGIN!");
+        // TODO: Start game session
+        return "";
     }
 
     private static String getMd5DigestString(String inputString) {

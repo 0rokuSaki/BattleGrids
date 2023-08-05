@@ -2,6 +2,7 @@ package Shared;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 public interface Server extends Remote {
 
@@ -17,7 +18,7 @@ public interface Server extends Remote {
 
     String handleChangePasswordRequest(String username, String oldPassword, String newPassword, String newPasswordVerification) throws RemoteException;
 
-    String[] handleGetGamesListRequest() throws RemoteException;
+    ArrayList<String> handleGetGamesListRequest() throws RemoteException;
 
     String handlePlayGameRequest(String username, String gameName) throws RemoteException;
 }

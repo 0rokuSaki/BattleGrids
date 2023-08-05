@@ -7,6 +7,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -95,7 +96,7 @@ public class ClientImpl implements Client, Runnable {
         return returnMessage;
     }
 
-    public String[] getGamesList() {
+    public ArrayList<String> getGamesList() {
         try {
             return serverStub.handleGetGamesListRequest();
         } catch (RemoteException ignored) {

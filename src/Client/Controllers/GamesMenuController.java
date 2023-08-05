@@ -5,10 +5,13 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class GamesMenuController extends ControllerBase {
 
@@ -19,9 +22,15 @@ public class GamesMenuController extends ControllerBase {
     private Label errLabel;
 
     @FXML
+    private Button playButton;
+
+    @FXML
+    private Button backButton;
+
+    @FXML
     public void initialize() {
         Platform.runLater(() -> {
-            String[] gamesList = ClientImpl.getInstance().getGamesList();
+            ArrayList<String> gamesList = ClientImpl.getInstance().getGamesList();
             if (gamesList != null) {
                 gamesComboBox.setItems(FXCollections.observableArrayList(gamesList));
             } else {
@@ -42,7 +51,12 @@ public class GamesMenuController extends ControllerBase {
 
         String returnMessage = ClientImpl.getInstance().playGame(gameName);
         if (returnMessage.equals("")) {
-            System.out.println("Playing game");
+            gamesComboBox.setDisable(true);
+            playButton.setDisable(true);
+            //backButton.setDisable(true);
+            errLabel.setText("Waiting for player");
+            errLabel.setTextFill(Color.GREEN);
+            errLabel.setVisible(true);
         } else {
             errLabel.setText(returnMessage);
             errLabel.setVisible(true);
