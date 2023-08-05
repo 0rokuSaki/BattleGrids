@@ -52,6 +52,8 @@ public class ChangePasswordMenuController extends ControllerBase {
 
         // Handle response from server
         if (returnMessage.equals("")) {
+            acceptButton.setDisable(true);
+
             // Delete saved credentials
             CredentialsManager.deleteCredentials();
 

@@ -23,12 +23,12 @@
             <Label text="Select Game" />
             <ComboBox fx:id="gamesComboBox" prefWidth="150.0" />
             <Label fx:id="errLabel" text="Label" textFill="RED" visible="false" />
-            <Button mnemonicParsing="false" onAction="#playButtonPress" prefHeight="50.0" prefWidth="150.0" text="Play">
+            <Button fx:id="playButton" mnemonicParsing="false" onAction="#playButtonPress" prefHeight="50.0" prefWidth="150.0" text="Play">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
             </Button>
-            <Button layoutX="235.0" layoutY="260.0" mnemonicParsing="false" onAction="#backButtonPress" prefHeight="50.0" prefWidth="150.0" text="Back">
+            <Button fx:id="backButton" layoutX="235.0" layoutY="260.0" mnemonicParsing="false" onAction="#backButtonPress" prefHeight="50.0" prefWidth="150.0" text="Back">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
