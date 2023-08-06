@@ -9,12 +9,13 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerImpl implements Server, Runnable {
 
-    private final DBManagerDummy dbManager;
+    private final DBManager dbManager;
 
     private final ConcurrentHashMap<String, Integer> connectedUsersPool;
 
@@ -22,8 +23,8 @@ public class ServerImpl implements Server, Runnable {
 
     private final ArrayList<String> gamesList;
 
-    public ServerImpl() {
-        dbManager = new DBManagerDummy();
+    public ServerImpl() throws ClassNotFoundException, SQLException {
+        dbManager = new DBManagerImpl();
         connectedUsersPool = new ConcurrentHashMap<>();
         gamesList = new ArrayList<>(Arrays.asList("Tic-Tac-Toe", "Connect Four"));
         gameWaitingQueues = new HashMap<>();
@@ -80,7 +81,7 @@ public class ServerImpl implements Server, Runnable {
         if (!PasswordValidator.validatePassword(password)) {
             return PasswordValidator.getPasswordCriteria();
         }
-        dbManager.setUser(username, getMd5DigestString(password));
+        dbManager.addUser(username, getMd5DigestString(password));
         connectedUsersPool.put(username, 1);
         System.out.println("User " + username + " registered");
         return "";
@@ -168,7 +169,7 @@ public class ServerImpl implements Server, Runnable {
         }
     }
 
-    public static void main(String[] args) throws RemoteException, AlreadyBoundException {
+    public static void main(String[] args) throws RemoteException, AlreadyBoundException, ClassNotFoundException, SQLException {
         final int PORT = 54321;
 
         ServerImpl server = new ServerImpl();  // Instantiate GameServer object
