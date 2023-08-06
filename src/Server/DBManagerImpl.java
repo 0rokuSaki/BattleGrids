@@ -3,7 +3,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
-import java.sql.*;
+import java.util.Objects;
 
 import static java.sql.DriverManager.*;
 
@@ -56,10 +56,18 @@ public class DBManagerImpl implements DBManager {
             return null;
         }
 
+    } //לחשוב איך אפשר להחזיר את הטבלה
+
+    public int hashCode(String password)
+    {
+        return (Objects.hash(password));
     }
 
     public String addUser(String username, String password) {
         try{
+            if (isUserNameExist(username))
+                return("");
+            //String hash= String.valueOf(hashCode(password));
             statement.executeUpdate("INSERT INTO users VALUES ('" + username + "', '" + password + "')");
             return (username);
         }catch (SQLException exception)
@@ -67,24 +75,19 @@ public class DBManagerImpl implements DBManager {
             return null;
         }
 
-    } //להוסיף בדיקה האם בשם משתמש קיים
+    }
 
-    public String setPassword(String username, String password) {
+    public String validPassword (String password) {
+        return (password);
+    } //האם הבדיקה תעשה פה?
+
+    public String setPassword(String username, String oldPassword, String newPassword) {
         try {
-            // Check if the user exists in the table
-            String checkUserQuery = "SELECT * FROM users WHERE username = '" + username + "'";
-            ResultSet resultSet = statement.executeQuery(checkUserQuery);
-            if (!resultSet.next()) {
-                resultSet.close();
-                return "";//user name doesnt exist
-            }
-
-            // Update the password for the user
-            String updateQuery = "UPDATE users SET password = '" + password + "' WHERE username = '" + username + "'";
+            if (!validLogIn(username, oldPassword))
+                return("");
+            String updateQuery = "UPDATE users SET password = '" + newPassword + "' WHERE username = '" + username + "'";
             statement.executeUpdate(updateQuery);
-
-            resultSet.close();
-            return password;
+            return newPassword;
 
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -111,17 +114,17 @@ public class DBManagerImpl implements DBManager {
         }
     }
 
-    public Boolean isUserNameExist(String u) throws SQLException {
+    public Boolean isUserNameExist(String u) {
         try
         {
             return(statement.executeQuery("SELECT EXISTS (SELECT * FROM users WHERE username = '" + u + "')").next() && statement.getResultSet().getBoolean(1));
-        }catch (Exception exception)
+        }catch (SQLException exception)
         {
             return null;
         }
     }
 
-    public Boolean validLogIn(String username, String password) throws SQLException {
+    public Boolean validLogIn(String username, String password){
         try
         {
             return (statement.executeQuery("SELECT EXISTS (SELECT * FROM users WHERE username = '" + username + "' and password='"+password+"')").next() && statement.getResultSet().getBoolean(1));
