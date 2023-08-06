@@ -12,18 +12,14 @@ public class Server {
 
 
         DBManager DB = new DBManagerImpl();
-        DB.createUsersTable();
         DB.addUser( "u1","p1");
         DB.addUser("u2","p2");
         DB.printUsersTable();
-        //DB.setPassword("u2","p3");
+        DB.setPasswordHash("u1","p3");
         DB.printUsersTable();
-        System.out.println(DB.getPassword("u1"));
+        System.out.println(DB.getPasswordHash("u1"));
 
-        System.out.println(DB.isUserNameExist("u3"));
+        System.out.println(DB.userExists("u3"));
 
-        System.out.println(DB.validLogIn("u2","p3"));
-
-        System.out.println(DB.hashCode("yosi"));
     }
 }

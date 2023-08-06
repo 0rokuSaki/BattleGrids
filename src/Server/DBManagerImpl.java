@@ -3,8 +3,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
-import java.util.Objects;
-
 import static java.sql.DriverManager.*;
 
 public class DBManagerImpl implements DBManager {
@@ -12,34 +10,17 @@ public class DBManagerImpl implements DBManager {
     private Statement statement;
     private Connection connection;
 
-    public DBManagerImpl()  {
-        try
-        {
-            Class.forName("com.mysql.cj.jdbc.Driver");//loading driver
-            connection = getConnection("jdbc:mysql://localhost:3306", "root", "root");//making connection
-            statement = connection.createStatement();//creating statement
-        }catch (Exception e)
-        {
-            //what should I do here???!!!
-        }
+    public DBManagerImpl() throws ClassNotFoundException, SQLException {
 
-    }
-
-    public void deleteUsersTable() {
-        try{
-            statement.executeUpdate("DROP TABLE IF EXISTS users");//deleting table "users"
-        }catch (Exception exception)
-        {
-            System.out.println("cant delete table");
-        }
-    }
-
-    public void createUsersTable() throws SQLException {
+        Class.forName("com.mysql.cj.jdbc.Driver");//loading driver
+        connection = getConnection("jdbc:mysql://localhost:3306", "root", "root");//making connection
+        statement = connection.createStatement();//creating statement
         statement.executeUpdate("CREATE DATABASE IF NOT EXISTS mydatabase");
         statement.executeUpdate("USE mydatabase");////using mydatabase
-        deleteUsersTable();
-        statement.executeUpdate("CREATE TABLE users (username varchar (10) PRIMARY KEY, password varchar (10))");//creating table "users"
+        statement.executeUpdate("DROP TABLE IF EXISTS users");//deleting table "users"
+        statement.executeUpdate("CREATE TABLE users (username varchar (255) PRIMARY KEY, passwordHash char (32))");//creating table "users"
     }
+
 
     public String printUsersTable()  {
         try
@@ -47,8 +28,8 @@ public class DBManagerImpl implements DBManager {
             ResultSet resultset = statement.executeQuery("SELECT * FROM users");
             while (resultset.next()) {
                 String usernameValue = resultset.getString("username");
-                String passwordValue = resultset.getString("password");
-                System.out.println("Username: " + usernameValue + ", Password: " + passwordValue);
+                String passwordValue = resultset.getString("passwordHash");
+                System.out.println("Username: " + usernameValue + ", passwordHash: " + passwordValue);
             }
             return("UsersTable");
         }catch (SQLException exception)
@@ -56,20 +37,12 @@ public class DBManagerImpl implements DBManager {
             return null;
         }
 
-    } //לחשוב איך אפשר להחזיר את הטבלה
-
-    public int hashCode(String password)
-    {
-        return (Objects.hash(password));
     }
 
-    public String addUser(String username, String password) {
+    public String addUser(String username, String passwordHash) {
         try{
-            if (isUserNameExist(username))
-                return("");
-            //String hash= String.valueOf(hashCode(password));
-            statement.executeUpdate("INSERT INTO users VALUES ('" + username + "', '" + password + "')");
-            return (username);
+            statement.executeUpdate("INSERT INTO users VALUES ('" + username + "', '" + passwordHash + "')");
+            return (username+", "+passwordHash);
         }catch (SQLException exception)
         {
             return null;
@@ -77,60 +50,38 @@ public class DBManagerImpl implements DBManager {
 
     }
 
-    public String validPassword (String password) {
-        return (password);
-    } //האם הבדיקה תעשה פה?
-
-    public String setPassword(String username, String oldPassword, String newPassword) {
+    public String setPasswordHash(String username, String passwordHash) {
         try {
-            if (!validLogIn(username, oldPassword))
-                return("");
-            String updateQuery = "UPDATE users SET password = '" + newPassword + "' WHERE username = '" + username + "'";
+            String updateQuery = "UPDATE users SET passwordHash = '" + passwordHash + "' WHERE username = '" + username + "'";
             statement.executeUpdate(updateQuery);
-            return newPassword;
+            return passwordHash;
 
         } catch (SQLException exception) {
-            exception.printStackTrace();
             return null;
         }
     }
 
-    public String getPassword(String username) {
+    public String getPasswordHash(String username) {
         try{
-            ResultSet resultSet = statement.executeQuery("SELECT password FROM users WHERE username = 'u2'");
-            if (resultSet.next())
-            {
-                String password = resultSet.getString("password");
-                resultSet.close();
-                return(password);
-            }
-            else {
-                resultSet.close();
-                return("");
-            }
+            ResultSet resultSet = statement.executeQuery("SELECT passwordHash FROM users WHERE username = '"+username+"'");
+            resultSet.next();
+            String passwordHash = resultSet.getString("passwordHash");
+            resultSet.close();
+            return(passwordHash);
         }catch (SQLException exception)
         {
             return (null);
         }
     }
 
-    public Boolean isUserNameExist(String u) {
+    public Boolean userExists(String username) {
         try
         {
-            return(statement.executeQuery("SELECT EXISTS (SELECT * FROM users WHERE username = '" + u + "')").next() && statement.getResultSet().getBoolean(1));
+            return(statement.executeQuery("SELECT EXISTS (SELECT * FROM users WHERE username = '" + username + "')").next() && statement.getResultSet().getBoolean(1));
         }catch (SQLException exception)
         {
             return null;
         }
     }
 
-    public Boolean validLogIn(String username, String password){
-        try
-        {
-            return (statement.executeQuery("SELECT EXISTS (SELECT * FROM users WHERE username = '" + username + "' and password='"+password+"')").next() && statement.getResultSet().getBoolean(1));
-        }catch (SQLException exception)
-        {
-            return null;
-        }
-    }
 }
