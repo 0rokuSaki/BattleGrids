@@ -1,4 +1,4 @@
-package Client;
+package Client.Controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
@@ -9,18 +9,19 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class MenuBase {
+public class ControllerBase {
     protected void changeScene(ActionEvent event, String fxmlName) throws IOException {
+        fxmlName = "../fxml/" + fxmlName;
+
         Parent root = FXMLLoader.load(getClass().getResource(fxmlName));
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        Scene prevScene = (Scene) ((Node) event.getSource()).getScene();
 
-        double prevWidth = stage.getWidth();
-        double prevHeight = stage.getHeight();
+        final double prevWidth = prevScene.getWidth();
+        final double prevHeight = prevScene.getHeight();
 
-        Scene scene = new Scene(root);
+        Scene scene = new Scene(root, prevWidth, prevHeight);
         stage.setScene(scene);
-        stage.setWidth(prevWidth);
-        stage.setHeight(prevHeight);
 
         stage.show();
     }

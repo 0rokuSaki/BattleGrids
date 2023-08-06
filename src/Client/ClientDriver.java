@@ -8,14 +8,22 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 
-public class Main extends Application {
+public class ClientDriver extends Application {
     @Override
     public void start(Stage stage) throws Exception {
-        URL url = getClass().getResource("OpeningMenu.fxml");
+
+        new Thread(ClientImpl.getInstance()).start();
+
+        URL url = getClass().getResource("fxml/OpeningMenu.fxml");
         Parent root = FXMLLoader.load(url);
         Scene scene = new Scene(root);
         stage.setTitle("BattleGrids");
         stage.setScene(scene);
         stage.show();
+    }
+
+    @Override
+    public void stop() {
+        ClientImpl.getInstance().stop();
     }
 }
