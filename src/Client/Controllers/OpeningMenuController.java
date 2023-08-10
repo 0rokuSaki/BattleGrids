@@ -19,9 +19,6 @@ public class OpeningMenuController extends ControllerBase {
     }
 
     @FXML
-    void playAsGuestButtonPress(ActionEvent event) {}
-
-    @FXML
     void exitButtonPress(ActionEvent event) {
         Platform.exit();
     }
