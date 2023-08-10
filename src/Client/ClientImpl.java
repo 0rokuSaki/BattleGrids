@@ -43,6 +43,10 @@ public class ClientImpl implements Client, Runnable {
         running = true;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
     public String logIn(String username, String password) {
         String returnMessage;
         lock.lock();
