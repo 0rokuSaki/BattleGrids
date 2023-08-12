@@ -41,7 +41,7 @@ public class ChangePasswordMenuController extends ControllerBase {
     }
 
     @FXML
-    void acceptButtonPress(ActionEvent event) throws RemoteException {
+    void acceptButtonPress(ActionEvent event) {
         // Get username, old password and new password
         String oldPassword = oldPasswordField.getText();
         String newPassword = newPasswordField.getText();
@@ -68,7 +68,7 @@ public class ChangePasswordMenuController extends ControllerBase {
     }
 
     @FXML
-    void backButtonPress(ActionEvent event) throws IOException {
+    void backButtonPress(ActionEvent event) {
         changeScene(((Node) event.getSource()).getScene(), "MyProfileMenu.fxml");
     }
 }

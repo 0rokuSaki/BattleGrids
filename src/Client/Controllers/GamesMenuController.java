@@ -43,7 +43,7 @@ public class GamesMenuController extends ControllerBase {
     }
 
     @FXML
-    void playButtonPress(ActionEvent event) throws IOException {
+    void playButtonPress(ActionEvent event) {
         String gameName = gamesComboBox.getValue();
         if (gameName == null) {
             errLabel.setText("No game selected");
@@ -62,7 +62,7 @@ public class GamesMenuController extends ControllerBase {
     }
 
     @FXML
-    void backButtonPress(ActionEvent event) throws IOException {
+    void backButtonPress(ActionEvent event) {
         changeScene(((Node) event.getSource()).getScene(), "LobbyMenu.fxml");
     }
 }

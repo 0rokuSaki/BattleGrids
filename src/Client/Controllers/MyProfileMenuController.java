@@ -19,12 +19,12 @@ public class MyProfileMenuController extends ControllerBase {
     }
 
     @FXML
-    void changePasswordButtonPress(ActionEvent event) throws IOException {
+    void changePasswordButtonPress(ActionEvent event) {
         changeScene(((Node) event.getSource()).getScene(), "ChangePasswordMenu.fxml");
     }
 
     @FXML
-    void backButtonPressed(ActionEvent event) throws IOException {
+    void backButtonPressed(ActionEvent event) {
         changeScene(((Node) event.getSource()).getScene(), "LobbyMenu.fxml");
     }
 }

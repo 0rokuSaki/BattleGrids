@@ -56,7 +56,7 @@ public class LoginMenuController extends ControllerBase {
     }
 
     @FXML
-    void loginButtonPress(ActionEvent event) throws IOException {
+    void loginButtonPress(ActionEvent event) {
         // Get text from fields
         String username = usernameField.getText();
         String password = passwordField.getText();
@@ -81,7 +81,7 @@ public class LoginMenuController extends ControllerBase {
     }
 
     @FXML
-    void backButtonPress(ActionEvent event) throws IOException {
+    void backButtonPress(ActionEvent event) {
         changeScene(((Node) event.getSource()).getScene(), "OpeningMenu.fxml");
     }
 }

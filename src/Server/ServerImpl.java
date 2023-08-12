@@ -35,7 +35,7 @@ public class ServerImpl implements Server, Runnable {
         rmiRegistry = registry;
         dbManager = new DBManagerImpl();
         loggedInUsersPool = Collections.synchronizedCollection(new ArrayList<>());
-        gamesList = new ArrayList<>(Arrays.asList("Tic Tac Toe", "Connect Four"));
+        gamesList = new ArrayList<>(Arrays.asList("Connect Four", "Tic Tac Toe"));
         gameSessions = new ConcurrentHashMap<>();
         gameWaitingQueues = new HashMap<>();
         for (String game : gamesList) {
@@ -143,6 +143,7 @@ public class ServerImpl implements Server, Runnable {
             }
         }
 
+        // Get remote references for the users
         Client player1;
         Client player2;
         try {
@@ -153,9 +154,18 @@ public class ServerImpl implements Server, Runnable {
             return "Internal server error";
         }
 
-        ConnectFourGameSession gameSession = new ConnectFourGameSession(otherUser, username);
+        // Create a game session object
+        GameSession gameSession;
+        switch (gameName) {
+            case "Connect Four":
+                gameSession = new ConnectFourGameSession(otherUser, username);
+                break;
+            default:
+                return "Internal server error";
+        }
         gameSessions.put(gameSession.getSessionNumber(), gameSession);
 
+        // Notify clients
         player1.initializeGame(gameSession);
         player2.initializeGame(gameSession);
 
@@ -168,15 +178,14 @@ public class ServerImpl implements Server, Runnable {
         if (gameSession == null) {
             return "Invalid session number";
         }
-
-        gameSession.makeMove(row, col);
-
+        gameSession.makeMove(row, col);  // Make the move
         String winner = gameSession.getWinner();
-        System.out.println("Winner is " + winner);
         if (winner != null) {
-            gameSessions.remove(sessionNumber);
+            gameSessions.remove(sessionNumber);  // Remove session if game ended
+            gameSession.release();               // Release session
         }
 
+        // Get remote references for the users
         Client player1;
         Client player2;
         try {
@@ -187,6 +196,7 @@ public class ServerImpl implements Server, Runnable {
             return "Internal server error";
         }
 
+        // Notify clients
         player1.updateGame(gameSession);
         player2.updateGame(gameSession);
 

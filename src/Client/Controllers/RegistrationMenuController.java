@@ -45,7 +45,7 @@ public class RegistrationMenuController extends ControllerBase {
     }
 
     @FXML
-    void registerButtonPress(ActionEvent event) throws IOException {
+    void registerButtonPress(ActionEvent event) {
         // Get text from fields
         String username = usernameField.getText();
         String password = passwordField.getText();
