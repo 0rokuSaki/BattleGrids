@@ -6,10 +6,6 @@ import java.util.ArrayList;
 
 public interface Server extends Remote {
 
-    void probe() throws RemoteException;
-
-    boolean handleKeepAlive(String username) throws RemoteException;
-
     String handleLoginRequest(String username, String password) throws RemoteException;
 
     void handleLogoutRequest(String username) throws RemoteException;

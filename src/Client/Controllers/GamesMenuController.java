@@ -1,6 +1,6 @@
 package Client.Controllers;
 
-import Client.ClientImpl;
+import Client.ClientModel;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -30,7 +30,7 @@ public class GamesMenuController extends ControllerBase {
     @FXML
     public void initialize() {
         Platform.runLater(() -> {
-            ArrayList<String> gamesList = ClientImpl.getInstance().getGamesList();
+            ArrayList<String> gamesList = ClientModel.getInstance().getGamesList();
             if (gamesList != null) {
                 gamesComboBox.setItems(FXCollections.observableArrayList(gamesList));
             } else {
@@ -49,7 +49,7 @@ public class GamesMenuController extends ControllerBase {
             return;
         }
 
-        String returnMessage = ClientImpl.getInstance().playGame(gameName);
+        String returnMessage = ClientModel.getInstance().playGame(gameName);
         if (returnMessage.equals("")) {
             gamesComboBox.setDisable(true);
             playButton.setDisable(true);

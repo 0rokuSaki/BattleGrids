@@ -1,6 +1,6 @@
 package Client.Controllers;
 
-import Client.ClientImpl;
+import Client.ClientModel;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -14,7 +14,7 @@ public class MyProfileMenuController extends ControllerBase {
 
     @FXML
     void initialize() {
-        userLabel.setText("User: " + ClientImpl.getInstance().getUsername());
+        userLabel.setText("User: " + ClientModel.getInstance().getUsername());
     }
 
     @FXML

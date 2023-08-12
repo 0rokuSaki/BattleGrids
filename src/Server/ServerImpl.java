@@ -1,31 +1,36 @@
 package Server;
 
+import Shared.Client;
 import Shared.Server;
 
 import javax.xml.bind.DatatypeConverter;
 import java.rmi.AlreadyBoundException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerImpl implements Server, Runnable {
 
     private final DBManager dbManager;
 
-    private final ConcurrentHashMap<String, Integer> connectedUsersPool;
+    private final Collection<String> loggedInUsersPool;
 
     private final HashMap<String, Queue<String>> gameWaitingQueues;
 
     private final ArrayList<String> gamesList;
 
-    public ServerImpl() throws ClassNotFoundException, SQLException {
+    private final Registry rmiRegistry;
+
+    public ServerImpl(Registry registry) throws ClassNotFoundException, SQLException {
+        rmiRegistry = registry;
         dbManager = new DBManagerImpl();
-        connectedUsersPool = new ConcurrentHashMap<>();
+        loggedInUsersPool = Collections.synchronizedCollection(new ArrayList<>());
         gamesList = new ArrayList<>(Arrays.asList("Tic-Tac-Toe", "Connect Four"));
         gameWaitingQueues = new HashMap<>();
         for (String game : gamesList) {
@@ -34,41 +39,31 @@ public class ServerImpl implements Server, Runnable {
     }
 
     @Override
-    public void probe() throws RemoteException {}
-
-    @Override
-    public boolean handleKeepAlive(String username) throws RemoteException {
-        if (connectedUsersPool.get(username) != null) {
-            connectedUsersPool.replace(username, 1);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
     public String handleLoginRequest(String username, String password) throws RemoteException {
-        if (connectedUsersPool.get(username) != null) {
+        if (loggedInUsersPool.contains(username)) {
             return "User is already logged in";
         }
         String passwordHash = dbManager.getPasswordHash(username);
         if (passwordHash == null || !passwordHash.equals(getMd5DigestString(password))) {
             return "Incorrect username and/or password";
         }
-        connectedUsersPool.put(username, 1);
+        loggedInUsersPool.add(username);
         System.out.println("User " + username + " logged in");
         return "";
     }
 
     @Override
     public void handleLogoutRequest(String username) throws RemoteException {
-        if (connectedUsersPool.get(username) != null) {
-            connectedUsersPool.remove(username);
+        if (loggedInUsersPool.remove(username)) {
             System.out.println("User " + username + " logged out");
         }
     }
 
     @Override
     public String handleRegistrationRequest(String username, String password, String passwordVerification) throws RemoteException {
+        if (dbManager.userExists(username) == null) {
+            return "Internal server error";
+        }
         if (dbManager.userExists(username)) {
             return "Username already exists";
         }
@@ -81,15 +76,16 @@ public class ServerImpl implements Server, Runnable {
         if (!PasswordValidator.validatePassword(password)) {
             return PasswordValidator.getPasswordCriteria();
         }
-        dbManager.addUser(username, getMd5DigestString(password));
-        connectedUsersPool.put(username, 1);
+        if (dbManager.addUser(username, getMd5DigestString(password)) == null || !loggedInUsersPool.add(username)) {
+            return "Internal server error";
+        }
         System.out.println("User " + username + " registered");
         return "";
     }
 
     @Override
     public String handleChangePasswordRequest(String username, String oldPassword, String newPassword, String newPasswordVerification) throws RemoteException {
-        if (connectedUsersPool.get(username) == null) {
+        if (!loggedInUsersPool.contains(username)) {
             return "Unable to identify user";
         }
         String passwordHash = dbManager.getPasswordHash(username);
@@ -117,7 +113,7 @@ public class ServerImpl implements Server, Runnable {
 
     @Override
     public synchronized String handlePlayGameRequest(String username, String gameName) throws RemoteException {
-        if (connectedUsersPool.get(username) == null) {
+        if (!loggedInUsersPool.contains(username)) {
             return "Unable to identify user";
         }
         Queue<String> waitingQueue = gameWaitingQueues.get(gameName);
@@ -150,19 +146,22 @@ public class ServerImpl implements Server, Runnable {
     @Override
     public void run() {
         while (true) {
-            for (Iterator<Map.Entry<String, Integer>> it = connectedUsersPool.entrySet().iterator(); it.hasNext(); ) {
-                Map.Entry<String, Integer> entry = it.next();
 
-                if (entry.getValue() == 1) {  // Update connected users pool
-                    entry.setValue(0);
-                } else {  // entry.getValue() is 0
-                    it.remove();  //  Remove disconnected user from pool
+            // Remove all disconnected users from loggedInUsersPool
+            Iterator<String> iter = loggedInUsersPool.iterator();
+            while (iter.hasNext()) {
+                String username = iter.next();
+                try {
+                    Client remote = (Client) rmiRegistry.lookup(username);
+                    remote.testConnection();
+                } catch (RemoteException | NotBoundException ignored) {
+                    System.out.println("User " + username + " is disconnected. Logging him out...");
+                    iter.remove();
                 }
             }
 
-            // Sleep for some time
             try {
-                Thread.sleep(10 * 1000);
+                Thread.sleep(5 * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -172,10 +171,11 @@ public class ServerImpl implements Server, Runnable {
     public static void main(String[] args) throws RemoteException, AlreadyBoundException, ClassNotFoundException, SQLException {
         final int PORT = 54321;
 
-        ServerImpl server = new ServerImpl();  // Instantiate GameServer object
+        Registry registry = LocateRegistry.createRegistry(PORT);   // Create RMI Registry
+
+        ServerImpl server = new ServerImpl(registry);  // Instantiate GameServer object
         new Thread(server).start();            // Start server thread
 
-        LocateRegistry.createRegistry(PORT);   // Create RMI Registry
         Server stub =
                 (Server) UnicastRemoteObject.exportObject((Server) server, 0);  // Export object
         LocateRegistry.getRegistry(PORT).bind("GameServer", stub);   // Bind stub

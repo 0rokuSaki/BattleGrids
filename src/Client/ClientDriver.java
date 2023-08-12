@@ -1,21 +1,23 @@
 package Client;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.net.URL;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 
 public class ClientDriver extends Application {
     @Override
     public void start(Stage stage) throws Exception {
+        if (!ClientModel.getInstance().initialize()) {
+            Platform.exit();
+        }
 
-        new Thread(ClientImpl.getInstance()).start();
-
-        URL url = getClass().getResource("fxml/OpeningMenu.fxml");
-        Parent root = FXMLLoader.load(url);
+        Parent root = FXMLLoader.load(getClass().getResource("fxml/OpeningMenu.fxml"));
         Scene scene = new Scene(root);
         stage.setTitle("BattleGrids");
         stage.setScene(scene);
@@ -24,6 +26,6 @@ public class ClientDriver extends Application {
 
     @Override
     public void stop() {
-        ClientImpl.getInstance().stop();
+        ClientModel.getInstance().finalize();
     }
 }

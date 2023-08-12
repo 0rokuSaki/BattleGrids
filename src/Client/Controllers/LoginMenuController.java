@@ -1,6 +1,6 @@
 package Client.Controllers;
 
-import Client.ClientImpl;
+import Client.ClientModel;
 import Client.Credentials;
 import Client.CredentialsManager;
 import javafx.application.Platform;
@@ -61,7 +61,7 @@ public class LoginMenuController extends ControllerBase {
         String password = passwordField.getText();
 
         // Login to server
-        String returnMessage = ClientImpl.getInstance().logIn(username, password);
+        String returnMessage = ClientModel.getInstance().logIn(username, password);
 
         // Handle response from server
         if (returnMessage.equals("")) { // Login successful
