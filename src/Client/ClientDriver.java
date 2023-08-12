@@ -7,9 +7,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
-
 public class ClientDriver extends Application {
     @Override
     public void start(Stage stage) throws Exception {

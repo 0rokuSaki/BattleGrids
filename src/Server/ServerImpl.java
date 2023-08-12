@@ -1,6 +1,7 @@
 package Server;
 
 import Shared.Client;
+import Shared.GameSession;
 import Shared.Server;
 
 import javax.xml.bind.DatatypeConverter;
@@ -14,6 +15,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerImpl implements Server, Runnable {
 
@@ -25,13 +27,16 @@ public class ServerImpl implements Server, Runnable {
 
     private final ArrayList<String> gamesList;
 
+    private final ConcurrentHashMap<Long, GameSession> gameSessions;
+
     private final Registry rmiRegistry;
 
     public ServerImpl(Registry registry) throws ClassNotFoundException, SQLException {
         rmiRegistry = registry;
         dbManager = new DBManagerImpl();
         loggedInUsersPool = Collections.synchronizedCollection(new ArrayList<>());
-        gamesList = new ArrayList<>(Arrays.asList("Tic-Tac-Toe", "Connect Four"));
+        gamesList = new ArrayList<>(Arrays.asList("Connect Four", "Tic Tac Toe"));
+        gameSessions = new ConcurrentHashMap<>();
         gameWaitingQueues = new HashMap<>();
         for (String game : gamesList) {
             gameWaitingQueues.put(game, new LinkedList<>());
@@ -128,8 +133,84 @@ public class ServerImpl implements Server, Runnable {
         if (otherUser == null) {
             return "Internal server error";
         }
-        System.out.println("LET THE GAME BEGIN!");
-        // TODO: Start game session
+        // Get a user from the waiting queue and make sure he is logged in
+        while (!loggedInUsersPool.contains(otherUser)) {
+            loggedInUsersPool.remove(otherUser);
+            otherUser = waitingQueue.poll();
+            if (otherUser == null) {
+                waitingQueue.add(username);
+                return "";
+            }
+        }
+
+        // Get remote references for the users
+        Client player1;
+        Client player2;
+        try {
+            player1 = (Client) rmiRegistry.lookup(otherUser);
+            player2 = (Client) rmiRegistry.lookup(username);
+        } catch (NotBoundException e) {
+            e.printStackTrace();
+            return "Internal server error";
+        }
+
+        // Create a game session object
+        GameSession gameSession;
+        switch (gameName) {
+            case "Connect Four":
+                gameSession = new ConnectFourGameSession(otherUser, username);
+                break;
+            default:
+                return "Internal server error";
+        }
+        gameSessions.put(gameSession.getSessionNumber(), gameSession);
+
+        // Notify clients
+        player1.initializeGame(gameSession);
+        player2.initializeGame(gameSession);
+
+        return "";
+    }
+
+    @Override
+    public String handleMakeMoveRequest(long sessionNumber, int row, int col) throws RemoteException {
+        GameSession gameSession = gameSessions.get(sessionNumber);
+        if (gameSession == null) {
+            return "Invalid session number";
+        }
+        gameSession.makeMove(row, col);  // Make the move
+        String winner = gameSession.getWinner();
+        if (winner != null) {
+            gameSessions.remove(sessionNumber);  // Remove session if game ended
+            gameSession.releaseNumber();               // Release session
+        }
+
+        // Get remote references for the users
+        Client player1;
+        Client player2;
+        try {
+            player1 = (Client) rmiRegistry.lookup(gameSession.getPlayer1());
+            player2 = (Client) rmiRegistry.lookup(gameSession.getPlayer2());
+        } catch (NotBoundException e) {
+            e.printStackTrace();
+            return "Internal server error";
+        }
+
+        // Notify clients
+        player1.updateGame(gameSession);
+        player2.updateGame(gameSession);
+
+        return "";
+    }
+
+    @Override
+    public String handleQuitGameRequest(long sessionNumber) throws RemoteException {
+        GameSession gameSession = gameSessions.get(sessionNumber);
+        if (gameSession == null) {
+            return "Invalid session number";
+        }
+        gameSessions.remove(sessionNumber);  // Remove session from gameSessions
+        gameSession.releaseNumber();         // Release session number
         return "";
     }
 
@@ -174,11 +255,10 @@ public class ServerImpl implements Server, Runnable {
         Registry registry = LocateRegistry.createRegistry(PORT);   // Create RMI Registry
 
         ServerImpl server = new ServerImpl(registry);  // Instantiate GameServer object
-        new Thread(server).start();            // Start server thread
+        new Thread(server).start();                    // Start server thread
 
-        Server stub =
-                (Server) UnicastRemoteObject.exportObject((Server) server, 0);  // Export object
-        LocateRegistry.getRegistry(PORT).bind("GameServer", stub);   // Bind stub
+        Server stub = (Server) UnicastRemoteObject.exportObject(server, 0);  // Export object
+        LocateRegistry.getRegistry(PORT).bind("GameServer", stub);          // Bind stub
         System.out.println("Server is ready");
     }
 }

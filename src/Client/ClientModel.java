@@ -1,8 +1,12 @@
 package Client;
 
+import Client.Controllers.GameController;
 import Shared.Client;
+import Shared.GameSession;
 import Shared.Server;
+import javafx.application.Platform;
 
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -16,6 +20,23 @@ public class ClientModel implements Client {
     /////////////////// REMOTE METHODS ///////////////////
     //////////////////////////////////////////////////////
     public void testConnection() throws RemoteException {}
+
+    public void initializeGame(GameSession gameSession) throws RemoteException {
+        Platform.runLater(() -> {
+            gameController.initializeGame(gameSession);
+        });
+    }
+
+    @Override
+    public void updateGame(GameSession gameSession) throws RemoteException {
+        Platform.runLater(() -> {
+            try {
+                gameController.updateGame(gameSession);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
 
     //////////////////////////////////////////////////////
     ////////////////// STATIC VARIABLES //////////////////
@@ -44,14 +65,20 @@ public class ClientModel implements Client {
 
     private Registry serverRmiRegistry;
 
+    private GameController gameController;
+
     //////////////////////////////////////////////////////
     /////////////////// PUBLIC METHODS ///////////////////
     //////////////////////////////////////////////////////
+    public void setGameController(GameController gameController) {
+        this.gameController = gameController;
+    }
+
     public boolean initialize() {
         try {
             serverRmiRegistry = LocateRegistry.getRegistry(HOST, PORT);         // Locate server's registry
             serverStub = (Server) serverRmiRegistry.lookup("GameServer"); // Obtain a reference to GameServer
-            if (clientStub != null) {
+            if (clientStub == null) {
                 clientStub = (Client) UnicastRemoteObject.exportObject(this, 0); // Export self
             }
             return true;
@@ -140,8 +167,26 @@ public class ClientModel implements Client {
         }
     }
 
+    public String makeMove(long sessionNumber, int row, int col) {
+        try {
+            return serverStub.handleMakeMoveRequest(sessionNumber, row, col);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return "Cannot reach server";
+        }
+    }
+
+    public String quitGame(long sessionNumber) {
+        try {
+            return serverStub.handleQuitGameRequest(sessionNumber);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return "Cannot reach server";
+        }
+    }
+
     //////////////////////////////////////////////////////
-    /////////////////// PRIVATE METHODS ///////////////////
+    /////////////////// PRIVATE METHODS //////////////////
     //////////////////////////////////////////////////////
     private ClientModel() {
         username = null;

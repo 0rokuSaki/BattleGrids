@@ -3,6 +3,7 @@ package Client.Controllers;
 import Client.ClientModel;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 
 import java.io.IOException;
@@ -18,12 +19,12 @@ public class MyProfileMenuController extends ControllerBase {
     }
 
     @FXML
-    void changePasswordButtonPress(ActionEvent event) throws IOException {
-        changeScene(event, "ChangePasswordMenu.fxml");
+    void changePasswordButtonPress(ActionEvent event) {
+        changeScene(((Node) event.getSource()).getScene(), "ChangePasswordMenu.fxml");
     }
 
     @FXML
-    void backButtonPressed(ActionEvent event) throws IOException {
-        changeScene(event, "LobbyMenu.fxml");
+    void backButtonPressed(ActionEvent event) {
+        changeScene(((Node) event.getSource()).getScene(), "LobbyMenu.fxml");
     }
 }

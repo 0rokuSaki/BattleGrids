@@ -5,6 +5,8 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -51,12 +53,8 @@ public class GamesMenuController extends ControllerBase {
 
         String returnMessage = ClientModel.getInstance().playGame(gameName);
         if (returnMessage.equals("")) {
-            gamesComboBox.setDisable(true);
-            playButton.setDisable(true);
-            //backButton.setDisable(true);
-            errLabel.setText("Waiting for player");
-            errLabel.setTextFill(Color.GREEN);
-            errLabel.setVisible(true);
+            String fxmlName = gameName.replaceAll("\\s", "") + "Game.fxml";
+            changeScene(((Node) event.getSource()).getScene(), fxmlName);
         } else {
             errLabel.setText(returnMessage);
             errLabel.setVisible(true);
@@ -64,7 +62,7 @@ public class GamesMenuController extends ControllerBase {
     }
 
     @FXML
-    void backButtonPress(ActionEvent event) throws IOException {
-        changeScene(event, "LobbyMenu.fxml");
+    void backButtonPress(ActionEvent event) {
+        changeScene(((Node) event.getSource()).getScene(), "LobbyMenu.fxml");
     }
 }
