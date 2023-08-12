@@ -1,6 +1,7 @@
 package Server;
 
 import Shared.Client;
+import Shared.GameSession;
 import Shared.Server;
 
 import javax.xml.bind.DatatypeConverter;
@@ -14,6 +15,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerImpl implements Server, Runnable {
 
@@ -25,13 +27,16 @@ public class ServerImpl implements Server, Runnable {
 
     private final ArrayList<String> gamesList;
 
+    private final ConcurrentHashMap<Long, GameSession> gameSessions;
+
     private final Registry rmiRegistry;
 
     public ServerImpl(Registry registry) throws ClassNotFoundException, SQLException {
         rmiRegistry = registry;
         dbManager = new DBManagerImpl();
         loggedInUsersPool = Collections.synchronizedCollection(new ArrayList<>());
-        gamesList = new ArrayList<>(Arrays.asList("Tic-Tac-Toe", "Connect Four"));
+        gamesList = new ArrayList<>(Arrays.asList("Tic Tac Toe", "Connect Four"));
+        gameSessions = new ConcurrentHashMap<>();
         gameWaitingQueues = new HashMap<>();
         for (String game : gamesList) {
             gameWaitingQueues.put(game, new LinkedList<>());
@@ -128,8 +133,32 @@ public class ServerImpl implements Server, Runnable {
         if (otherUser == null) {
             return "Internal server error";
         }
-        System.out.println("LET THE GAME BEGIN!");
-        // TODO: Start game session
+        // Get a user from the waiting queue and make sure he is logged in
+        while (!loggedInUsersPool.contains(otherUser)) {
+            loggedInUsersPool.remove(otherUser);
+            otherUser = waitingQueue.poll();
+            if (otherUser == null) {
+                waitingQueue.add(username);
+                return "";
+            }
+        }
+
+        Client player1 = null;
+        Client player2 = null;
+        try {
+            player1 = (Client) rmiRegistry.lookup(otherUser);
+            player2 = (Client) rmiRegistry.lookup(username);
+        } catch (NotBoundException e) {
+            e.printStackTrace();
+            return "Internal server error";
+        }
+
+        ConnectFourGameSession gameSession = new ConnectFourGameSession(otherUser, username);
+        gameSessions.put(gameSession.getSessionNumber(), gameSession);
+
+        player1.initializeGame(gameSession);
+        player2.initializeGame(gameSession);
+
         return "";
     }
 

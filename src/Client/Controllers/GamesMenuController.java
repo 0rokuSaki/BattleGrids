@@ -41,7 +41,7 @@ public class GamesMenuController extends ControllerBase {
     }
 
     @FXML
-    void playButtonPress(ActionEvent event) {
+    void playButtonPress(ActionEvent event) throws IOException {
         String gameName = gamesComboBox.getValue();
         if (gameName == null) {
             errLabel.setText("No game selected");
@@ -51,12 +51,8 @@ public class GamesMenuController extends ControllerBase {
 
         String returnMessage = ClientModel.getInstance().playGame(gameName);
         if (returnMessage.equals("")) {
-            gamesComboBox.setDisable(true);
-            playButton.setDisable(true);
-            //backButton.setDisable(true);
-            errLabel.setText("Waiting for player");
-            errLabel.setTextFill(Color.GREEN);
-            errLabel.setVisible(true);
+            String fxmlName = gameName.replaceAll("\\s", "") + "Game.fxml";
+            changeScene(event, fxmlName);
         } else {
             errLabel.setText(returnMessage);
             errLabel.setVisible(true);

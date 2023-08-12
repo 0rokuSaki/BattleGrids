@@ -1,7 +1,10 @@
 package Client;
 
+import Client.Controllers.GameController;
 import Shared.Client;
+import Shared.GameSession;
 import Shared.Server;
+import javafx.application.Platform;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -16,6 +19,12 @@ public class ClientModel implements Client {
     /////////////////// REMOTE METHODS ///////////////////
     //////////////////////////////////////////////////////
     public void testConnection() throws RemoteException {}
+
+    public void initializeGame(GameSession gameSession) throws RemoteException {
+        Platform.runLater(() -> {
+            gameController.initializeGame(gameSession);
+        });
+    }
 
     //////////////////////////////////////////////////////
     ////////////////// STATIC VARIABLES //////////////////
@@ -44,14 +53,20 @@ public class ClientModel implements Client {
 
     private Registry serverRmiRegistry;
 
+    private GameController gameController;
+
     //////////////////////////////////////////////////////
     /////////////////// PUBLIC METHODS ///////////////////
     //////////////////////////////////////////////////////
+    public void setGameController(GameController gameController) {
+        this.gameController = gameController;
+    }
+
     public boolean initialize() {
         try {
             serverRmiRegistry = LocateRegistry.getRegistry(HOST, PORT);         // Locate server's registry
             serverStub = (Server) serverRmiRegistry.lookup("GameServer"); // Obtain a reference to GameServer
-            if (clientStub != null) {
+            if (clientStub == null) {
                 clientStub = (Client) UnicastRemoteObject.exportObject(this, 0); // Export self
             }
             return true;
