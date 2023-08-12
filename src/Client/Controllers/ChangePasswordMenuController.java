@@ -1,9 +1,7 @@
 package Client.Controllers;
 
-import Client.ClientImpl;
-import Client.Controllers.ControllerBase;
+import Client.ClientModel;
 import Client.CredentialsManager;
-import Shared.Server;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -48,7 +46,7 @@ public class ChangePasswordMenuController extends ControllerBase {
         String newPasswordVerification = verifyNewPasswordField.getText();
 
         // Change password on server
-        String returnMessage = ClientImpl.getInstance().changePassword(oldPassword, newPassword, newPasswordVerification);
+        String returnMessage = ClientModel.getInstance().changePassword(oldPassword, newPassword, newPasswordVerification);
 
         // Handle response from server
         if (returnMessage.equals("")) {

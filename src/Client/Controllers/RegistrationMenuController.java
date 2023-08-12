@@ -1,6 +1,6 @@
 package Client.Controllers;
 
-import Client.ClientImpl;
+import Client.ClientModel;
 import Client.CredentialsManager;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -51,7 +51,7 @@ public class RegistrationMenuController extends ControllerBase {
         String passwordVerification = verifyPasswordField.getText();
 
         // Register to server
-        String returnMessage = ClientImpl.getInstance().register(username, password, passwordVerification);
+        String returnMessage = ClientModel.getInstance().register(username, password, passwordVerification);
 
         // Handle response from server
         if (returnMessage.equals("")) {  // Registration successful
