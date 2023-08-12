@@ -12,19 +12,30 @@ import java.util.ArrayList;
 
 public class ClientModel implements Client {
 
-    /* Remote Methods */
+    //////////////////////////////////////////////////////
+    /////////////////// REMOTE METHODS ///////////////////
+    //////////////////////////////////////////////////////
     public void testConnection() throws RemoteException {}
 
+    //////////////////////////////////////////////////////
+    ////////////////// STATIC VARIABLES //////////////////
+    //////////////////////////////////////////////////////
     private static final String HOST = "localhost";
 
     private static final int PORT = 54321;
 
     private static final ClientModel instance = new ClientModel();
 
+    //////////////////////////////////////////////////////
+    /////////////////// STATIC METHODS ///////////////////
+    //////////////////////////////////////////////////////
     public static ClientModel getInstance() {
         return instance;
     }
 
+    //////////////////////////////////////////////////////
+    ///////////////// INSTANCE VARIABLES /////////////////
+    //////////////////////////////////////////////////////
     private String username;
 
     private Server serverStub;
@@ -33,18 +44,16 @@ public class ClientModel implements Client {
 
     private Registry serverRmiRegistry;
 
-    private ClientModel() {
-        username = null;
-        serverStub = null;
-        clientStub = null;
-        serverRmiRegistry = null;
-    }
-
+    //////////////////////////////////////////////////////
+    /////////////////// PUBLIC METHODS ///////////////////
+    //////////////////////////////////////////////////////
     public boolean initialize() {
         try {
             serverRmiRegistry = LocateRegistry.getRegistry(HOST, PORT);         // Locate server's registry
             serverStub = (Server) serverRmiRegistry.lookup("GameServer"); // Obtain a reference to GameServer
-            clientStub = (Client) UnicastRemoteObject.exportObject(this, 0); // Export self
+            if (clientStub != null) {
+                clientStub = (Client) UnicastRemoteObject.exportObject(this, 0); // Export self
+            }
             return true;
         } catch (RemoteException | NotBoundException e) {
             e.printStackTrace();
@@ -129,5 +138,15 @@ public class ClientModel implements Client {
         } catch (RemoteException ignored) {
             return "Cannot reach server";
         }
+    }
+
+    //////////////////////////////////////////////////////
+    /////////////////// PRIVATE METHODS ///////////////////
+    //////////////////////////////////////////////////////
+    private ClientModel() {
+        username = null;
+        serverStub = null;
+        clientStub = null;
+        serverRmiRegistry = null;
     }
 }
