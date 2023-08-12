@@ -5,6 +5,8 @@ import Client.CredentialsManager;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -67,6 +69,6 @@ public class ChangePasswordMenuController extends ControllerBase {
 
     @FXML
     void backButtonPress(ActionEvent event) throws IOException {
-        changeScene(event, "MyProfileMenu.fxml");
+        changeScene(((Node) event.getSource()).getScene(), "MyProfileMenu.fxml");
     }
 }

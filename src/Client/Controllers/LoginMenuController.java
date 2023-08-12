@@ -6,6 +6,7 @@ import Client.CredentialsManager;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 
 import java.io.*;
@@ -73,7 +74,7 @@ public class LoginMenuController extends ControllerBase {
             }
 
             // Change to lobby menu
-            changeScene(event, "LobbyMenu.fxml");
+            changeScene(((Node) event.getSource()).getScene(), "LobbyMenu.fxml");
         } else {  // Login failed
             loginErrLabel.setText(returnMessage);
         }
@@ -81,6 +82,6 @@ public class LoginMenuController extends ControllerBase {
 
     @FXML
     void backButtonPress(ActionEvent event) throws IOException {
-        changeScene(event, "OpeningMenu.fxml");
+        changeScene(((Node) event.getSource()).getScene(), "OpeningMenu.fxml");
     }
 }

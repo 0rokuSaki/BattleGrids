@@ -16,12 +16,20 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
-public class ConnectFourGameController implements GameController {
+import java.io.IOException;
+
+public class ConnectFourGameController extends ControllerBase implements GameController {
 
     private final int GRID_SIZE = 7;
 
     @FXML
     private HBox buttonsContainer;
+
+    @FXML
+    private Label opponentLabel;
+
+    @FXML
+    private Label divideLabel;
 
     @FXML
     private Label infoLabel;
@@ -68,13 +76,8 @@ public class ConnectFourGameController implements GameController {
         // Set game session
         this.gameSession = gameSession;
 
-        // Set opponent name
-        String username = ClientModel.getInstance().getUsername();
-        String player1 = gameSession.getPlayer1();
-        String player2 = gameSession.getPlayer2();
-        String opponentName = username.equals(player1) ? player2 : player1;
-        infoLabel.setText("Opponent: " + opponentName);
-        infoLabel.setTextFill(Color.BLACK);
+        // Initialize labels
+        updateLabels();
 
         // Create a 7 by 7 grid
         grid = new GridPane();
@@ -101,7 +104,7 @@ public class ConnectFourGameController implements GameController {
             grid.add(buttons[i], i, GRID_SIZE - 1); // add button to grid
         }
 
-        if (!username.equals(gameSession.getCurrTurn())) {
+        if (!ClientModel.getInstance().getUsername().equals(gameSession.getCurrTurn())) {
             deactivateButtons();
         }
 
@@ -127,8 +130,14 @@ public class ConnectFourGameController implements GameController {
     }
 
     @Override
-    public void updateGame(GameSession gameSession) {
+    public void updateGame(GameSession gameSession) throws IOException {
         this.gameSession = gameSession;  // Update game session
+        String winner = gameSession.getWinner();
+        if (winner != null) {
+            Alert a = new Alert(Alert.AlertType.INFORMATION, winner + " has won the game!");
+            a.showAndWait();
+            changeScene(gridRootPane.getScene(), "GamesMenu.fxml");
+        }
         if (ClientModel.getInstance().getUsername().equals(gameSession.getCurrTurn())) {
             activateButtons();  // Activate buttons if its the user's turn
         }
@@ -147,6 +156,7 @@ public class ConnectFourGameController implements GameController {
                 grid.add(c, col, row);
             }
         }
+        updateLabels();
     }
 
     private void handleGameButtonPress(ActionEvent event) {
@@ -158,6 +168,28 @@ public class ConnectFourGameController implements GameController {
         }
         deactivateButtons();
         ClientModel.getInstance().makeMove(gameSession.getSessionNumber(), 0, col); // TODO: Handle return value
+    }
+
+    private void updateLabels() {
+        String username = ClientModel.getInstance().getUsername();
+        String player1 = gameSession.getPlayer1();
+        String player2 = gameSession.getPlayer2();
+        String opponentName = username.equals(player1) ? player2 : player1;
+        String currTurn = username.equals(gameSession.getCurrTurn()) ? "Your turn" : opponentName + "'s turn";
+        Color infoLabelTextFill = username.equals(gameSession.getCurrTurn()) ? Color.BLUE : Color.RED;
+
+        // Opponent label
+        opponentLabel.setText("Opponent: " + opponentName);
+        opponentLabel.setTextFill(Color.RED);
+        opponentLabel.setVisible(true);
+
+        // Divide label
+        divideLabel.setVisible(true);
+
+        // Info label
+        infoLabel.setText(currTurn);
+        infoLabel.setTextFill(infoLabelTextFill);
+        infoLabel.setVisible(true);
     }
 
     private void activateButtons() {

@@ -5,6 +5,7 @@ import Client.CredentialsManager;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 
 import java.io.IOException;
@@ -59,7 +60,7 @@ public class RegistrationMenuController extends ControllerBase {
             if (rememberMeCheckBox.isSelected()) {
                 CredentialsManager.saveCredentials(username, password);
             }
-            changeScene(event, "LobbyMenu.fxml");
+            changeScene(((Node) event.getSource()).getScene(), "LobbyMenu.fxml");
         } else {  // Registration failed
             regErrLabel.setText(returnMessage);
         }
@@ -67,6 +68,6 @@ public class RegistrationMenuController extends ControllerBase {
 
     @FXML
     void backButtonPress(ActionEvent event) throws IOException {
-        changeScene(event, "OpeningMenu.fxml");
+        changeScene(((Node) event.getSource()).getScene(), "OpeningMenu.fxml");
     }
 }

@@ -6,6 +6,7 @@ import Shared.GameSession;
 import Shared.Server;
 import javafx.application.Platform;
 
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -29,7 +30,11 @@ public class ClientModel implements Client {
     @Override
     public void updateGame(GameSession gameSession) throws RemoteException {
         Platform.runLater(() -> {
-            gameController.updateGame(gameSession);
+            try {
+                gameController.updateGame(gameSession);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
     }
 
