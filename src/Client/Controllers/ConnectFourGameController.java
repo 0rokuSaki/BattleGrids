@@ -2,87 +2,27 @@ package Client.Controllers;
 
 import Client.ClientModel;
 import Shared.GameSession;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
-import java.io.IOException;
-import java.util.Optional;
-
-public class ConnectFourGameController extends ControllerBase implements GameController {
+public class ConnectFourGameController extends GameControllerBase {
 
     private final int GRID_SIZE = 7;
 
     @FXML
-    private HBox buttonsContainer;
-
-    @FXML
-    private Label opponentLabel;
-
-    @FXML
-    private Label divideLabel;
-
-    @FXML
-    private Label infoLabel;
-
-    @FXML
-    private VBox labelsContainer;
-
-    @FXML
-    private Pane gridRootPane;
-
-    private GridPane grid;
-
-    private Button[] buttons;
-
-    private GameSession gameSession;
-
-    @FXML
     void initialize() {
-        ClientModel.getInstance().setGameController(this);
-        // Set info label
-        infoLabel.setText("Waiting for player...");
-        infoLabel.setTextFill(Color.GREEN);
-
-        Platform.runLater(() -> {
-            // Set size of gridRoot in the window
-            AnchorPane.setLeftAnchor(gridRootPane, 0.0);
-            AnchorPane.setRightAnchor(gridRootPane, 0.0);
-            AnchorPane.setTopAnchor(gridRootPane, labelsContainer.getHeight());
-            AnchorPane.setBottomAnchor(gridRootPane, buttonsContainer.getHeight());
-        });
-    }
-
-    @FXML
-    void instructionsButtonPress(ActionEvent event) {
-        String instructions = "Be the first player to connect 4 of the same colored discs in a row (either vertically, horizontally, or diagonally).\n" +
-                              "To place a disc, click on one of the seven buttons. The disc will be placed at the lowest free spot in the chosen column.";
-        Alert a = new Alert(Alert.AlertType.INFORMATION, instructions);
-        a.setHeaderText("Instructions");
-        a.showAndWait();
-    }
-
-    @FXML
-    void quitGameButtonPress(ActionEvent event) {
-        String warningMessage = "Quitting will cause you to lose the match. Are you sure?";
-        Alert a = new Alert(Alert.AlertType.WARNING, warningMessage, ButtonType.OK, ButtonType.CANCEL);
-        Optional<ButtonType> buttonPressed = a.showAndWait();
-        if (buttonPressed.isPresent() && buttonPressed.get() == ButtonType.OK) {
-            ClientModel.getInstance().quitGame(gameSession.getSessionNumber());
-        }
-        changeScene(((Node) event.getSource()).getScene(), "GamesMenu.fxml");
+        super.initialize();
+        instructions = "Be the first player to connect 4 of the same colored discs in a row (either vertically, horizontally, or diagonally).\n" +
+                "To place a disc, click on one of the seven buttons. The disc will be placed at the lowest free spot in the chosen column.";
     }
 
     //////////////////////////////////////////////////////
@@ -148,7 +88,7 @@ public class ConnectFourGameController extends ControllerBase implements GameCon
     }
 
     @Override
-    public void updateGame(GameSession gameSession) throws IOException {
+    public void updateGame(GameSession gameSession) {
         this.gameSession = gameSession;  // Update game session
 
         // Update grid
@@ -192,39 +132,5 @@ public class ConnectFourGameController extends ControllerBase implements GameCon
         }
         deactivateButtons();
         ClientModel.getInstance().makeMove(gameSession.getSessionNumber(), 0, col); // TODO: Handle return value
-    }
-
-    private void updateLabels() {
-        String username = ClientModel.getInstance().getUsername();
-        String player1 = gameSession.getPlayer1();
-        String player2 = gameSession.getPlayer2();
-        String opponentName = username.equals(player1) ? player2 : player1;
-        String currTurn = username.equals(gameSession.getCurrTurn()) ? "Your turn" : opponentName + "'s turn";
-        Color infoLabelTextFill = username.equals(gameSession.getCurrTurn()) ? Color.BLUE : Color.RED;
-
-        // Opponent label
-        opponentLabel.setText("Opponent: " + opponentName);
-        opponentLabel.setTextFill(Color.RED);
-        opponentLabel.setVisible(true);
-
-        // Divide label
-        divideLabel.setVisible(true);
-
-        // Info label
-        infoLabel.setText(currTurn);
-        infoLabel.setTextFill(infoLabelTextFill);
-        infoLabel.setVisible(true);
-    }
-
-    private void activateButtons() {
-        for (Button button : buttons) {
-            button.setDisable(false);
-        }
-    }
-
-    private void deactivateButtons() {
-        for (Button button : buttons) {
-            button.setDisable(true);
-        }
     }
 }
