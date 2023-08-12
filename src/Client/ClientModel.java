@@ -26,6 +26,13 @@ public class ClientModel implements Client {
         });
     }
 
+    @Override
+    public void updateGame(GameSession gameSession) throws RemoteException {
+        Platform.runLater(() -> {
+            gameController.updateGame(gameSession);
+        });
+    }
+
     //////////////////////////////////////////////////////
     ////////////////// STATIC VARIABLES //////////////////
     //////////////////////////////////////////////////////
@@ -151,6 +158,15 @@ public class ClientModel implements Client {
         try {
             return serverStub.handlePlayGameRequest(username, gameName);
         } catch (RemoteException ignored) {
+            return "Cannot reach server";
+        }
+    }
+
+    public String makeMove(long sessionNumber, int row, int col) {
+        try {
+            return serverStub.handleMakeMoveRequest(sessionNumber, row, col);
+        } catch (RemoteException e) {
+            e.printStackTrace();
             return "Cannot reach server";
         }
     }

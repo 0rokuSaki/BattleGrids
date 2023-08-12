@@ -143,8 +143,8 @@ public class ServerImpl implements Server, Runnable {
             }
         }
 
-        Client player1 = null;
-        Client player2 = null;
+        Client player1;
+        Client player2;
         try {
             player1 = (Client) rmiRegistry.lookup(otherUser);
             player2 = (Client) rmiRegistry.lookup(username);
@@ -158,6 +158,37 @@ public class ServerImpl implements Server, Runnable {
 
         player1.initializeGame(gameSession);
         player2.initializeGame(gameSession);
+
+        return "";
+    }
+
+    @Override
+    public String handleMakeMoveRequest(long sessionNumber, int row, int col) throws RemoteException {
+        GameSession gameSession = gameSessions.get(sessionNumber);
+        if (gameSession == null) {
+            return "Invalid session number";
+        }
+
+        gameSession.makeMove(row, col);
+
+        String winner = gameSession.getWinner();
+        System.out.println("Winner is " + winner);
+        if (winner != null) {
+            gameSessions.remove(sessionNumber);
+        }
+
+        Client player1;
+        Client player2;
+        try {
+            player1 = (Client) rmiRegistry.lookup(gameSession.getPlayer1());
+            player2 = (Client) rmiRegistry.lookup(gameSession.getPlayer2());
+        } catch (NotBoundException e) {
+            e.printStackTrace();
+            return "Internal server error";
+        }
+
+        player1.updateGame(gameSession);
+        player2.updateGame(gameSession);
 
         return "";
     }
@@ -203,11 +234,10 @@ public class ServerImpl implements Server, Runnable {
         Registry registry = LocateRegistry.createRegistry(PORT);   // Create RMI Registry
 
         ServerImpl server = new ServerImpl(registry);  // Instantiate GameServer object
-        new Thread(server).start();            // Start server thread
+        new Thread(server).start();                    // Start server thread
 
-        Server stub =
-                (Server) UnicastRemoteObject.exportObject((Server) server, 0);  // Export object
-        LocateRegistry.getRegistry(PORT).bind("GameServer", stub);   // Bind stub
+        Server stub = (Server) UnicastRemoteObject.exportObject(server, 0);  // Export object
+        LocateRegistry.getRegistry(PORT).bind("GameServer", stub);          // Bind stub
         System.out.println("Server is ready");
     }
 }
