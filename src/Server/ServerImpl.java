@@ -182,7 +182,7 @@ public class ServerImpl implements Server, Runnable {
         String winner = gameSession.getWinner();
         if (winner != null) {
             gameSessions.remove(sessionNumber);  // Remove session if game ended
-            gameSession.release();               // Release session
+            gameSession.releaseNumber();               // Release session
         }
 
         // Get remote references for the users
@@ -200,6 +200,17 @@ public class ServerImpl implements Server, Runnable {
         player1.updateGame(gameSession);
         player2.updateGame(gameSession);
 
+        return "";
+    }
+
+    @Override
+    public String handleQuitGameRequest(long sessionNumber) throws RemoteException {
+        GameSession gameSession = gameSessions.get(sessionNumber);
+        if (gameSession == null) {
+            return "Invalid session number";
+        }
+        gameSessions.remove(sessionNumber);  // Remove session from gameSessions
+        gameSession.releaseNumber();         // Release session number
         return "";
     }
 

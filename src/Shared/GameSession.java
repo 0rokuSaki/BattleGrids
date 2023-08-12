@@ -27,7 +27,7 @@ public class GameSession implements Serializable {
         winner = null;
     }
 
-    public void release() {
+    public void releaseNumber() {
         sessionNumbers.remove(sessionNumber);
     }
 

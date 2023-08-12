@@ -9,14 +9,17 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public class ConnectFourGameController extends ControllerBase implements GameController {
 
@@ -64,12 +67,27 @@ public class ConnectFourGameController extends ControllerBase implements GameCon
 
     @FXML
     void instructionsButtonPress(ActionEvent event) {
+        String instructions = "Be the first player to connect 4 of the same colored discs in a row (either vertically, horizontally, or diagonally).\n" +
+                              "To place a disc, click on one of the seven buttons. The disc will be placed at the lowest free spot in the chosen column.";
+        Alert a = new Alert(Alert.AlertType.INFORMATION, instructions);
+        a.setHeaderText("Instructions");
+        a.showAndWait();
     }
 
     @FXML
     void quitGameButtonPress(ActionEvent event) {
-
+        String warningMessage = "Quitting will cause you to lose the match. Are you sure?";
+        Alert a = new Alert(Alert.AlertType.WARNING, warningMessage, ButtonType.OK, ButtonType.CANCEL);
+        Optional<ButtonType> buttonPressed = a.showAndWait();
+        if (buttonPressed.isPresent() && buttonPressed.get() == ButtonType.OK) {
+            ClientModel.getInstance().quitGame(gameSession.getSessionNumber());
+        }
+        changeScene(((Node) event.getSource()).getScene(), "GamesMenu.fxml");
     }
+
+    //////////////////////////////////////////////////////
+    //////////////////// PUBLIC METHODS //////////////////
+    //////////////////////////////////////////////////////
 
     @Override
     public void initializeGame(GameSession gameSession) {
@@ -132,15 +150,7 @@ public class ConnectFourGameController extends ControllerBase implements GameCon
     @Override
     public void updateGame(GameSession gameSession) throws IOException {
         this.gameSession = gameSession;  // Update game session
-        String winner = gameSession.getWinner();
-        if (winner != null) {
-            Alert a = new Alert(Alert.AlertType.INFORMATION, winner + " has won the game!");
-            a.showAndWait();
-            changeScene(gridRootPane.getScene(), "GamesMenu.fxml");
-        }
-        if (ClientModel.getInstance().getUsername().equals(gameSession.getCurrTurn())) {
-            activateButtons();  // Activate buttons if its the user's turn
-        }
+
         // Update grid
         String[][] gameBoard = gameSession.getGameBoard();
         String username = ClientModel.getInstance().getUsername();
@@ -156,9 +166,23 @@ public class ConnectFourGameController extends ControllerBase implements GameCon
                 grid.add(c, col, row);
             }
         }
+
+        String winner = gameSession.getWinner();
+        if (winner != null) {
+            Alert a = new Alert(Alert.AlertType.INFORMATION, winner + " has won the game!");
+            a.showAndWait();
+            changeScene(gridRootPane.getScene(), "GamesMenu.fxml");
+        }
+        if (ClientModel.getInstance().getUsername().equals(gameSession.getCurrTurn())) {
+            activateButtons();  // Activate buttons if its the user's turn
+        }
+
         updateLabels();
     }
 
+    //////////////////////////////////////////////////////
+    /////////////////// PRIVATE METHODS //////////////////
+    //////////////////////////////////////////////////////
     private void handleGameButtonPress(ActionEvent event) {
         int col = Integer.parseInt(((Button) event.getSource()).getText()) - 1;
         if (!gameSession.legalMove(0, col)) {
