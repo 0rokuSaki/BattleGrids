@@ -16,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ServerImpl implements Server, Runnable {
 
@@ -39,7 +40,7 @@ public class ServerImpl implements Server, Runnable {
         gameSessions = new ConcurrentHashMap<>();
         gameWaitingQueues = new HashMap<>();
         for (String game : gamesList) {
-            gameWaitingQueues.put(game, new LinkedList<>());
+            gameWaitingQueues.put(game, new ConcurrentLinkedQueue<>());
         }
     }
 
@@ -117,7 +118,7 @@ public class ServerImpl implements Server, Runnable {
     }
 
     @Override
-    public synchronized String handlePlayGameRequest(String username, String gameName) throws RemoteException {
+    public String handlePlayGameRequest(String username, String gameName) throws RemoteException {
         if (!loggedInUsersPool.contains(username)) {
             return "Unable to identify user";
         }
@@ -211,6 +212,24 @@ public class ServerImpl implements Server, Runnable {
         }
         gameSessions.remove(sessionNumber);  // Remove session from gameSessions
         gameSession.releaseNumber();         // Release session number
+        return "";
+    }
+
+    @Override
+    public String handleQuitGameRequest(String username, String gameName) throws RemoteException {
+        if (!loggedInUsersPool.contains(username)) {
+            return "Unable to identify user";
+        }
+        Queue<String> waitingQueue = gameWaitingQueues.get(gameName);
+        if (waitingQueue == null) {
+            return "Invalid game selected";
+        }
+        if (!waitingQueue.contains(username)) {
+            return "Username is not in the waiting queue";
+        }
+        if (!waitingQueue.removeIf(element -> element.equals(username))) {
+            return "Internal server error";
+        }
         return "";
     }
 

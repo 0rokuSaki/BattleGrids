@@ -48,6 +48,8 @@ public class GameControllerBase extends ControllerBase implements GameController
 
     String username;
 
+    String gameName;
+
     boolean gameStarted;
 
     //////////////////////////////////////////////////////
@@ -63,7 +65,9 @@ public class GameControllerBase extends ControllerBase implements GameController
     }
 
     @Override
-    public void updateGame(GameSession gameSession) {}
+    public void updateGame(GameSession gameSession) {
+        this.gameSession = gameSession;
+    }
 
     //////////////////////////////////////////////////////
     /////////////// PACKAGE-PRIVATE METHODS //////////////
@@ -95,11 +99,24 @@ public class GameControllerBase extends ControllerBase implements GameController
 
     @FXML
     void quitGameButtonPress(ActionEvent event) {
-        String warningMessage = "Quitting will cause you to lose the match. Are you sure?";
-        Alert a = new Alert(Alert.AlertType.WARNING, warningMessage, ButtonType.OK, ButtonType.CANCEL);
-        Optional<ButtonType> buttonPressed = a.showAndWait();
-        if (buttonPressed.isPresent() && buttonPressed.get() == ButtonType.OK) {
-            ClientModel.getInstance().quitGame(gameSession.getSessionNumber());
+        String returnMsg;
+        if (gameStarted) {
+            String warningMessage = "Quitting will cause you to lose the match. Are you sure?";
+            Optional<ButtonType> buttonPressed =
+                    new Alert(Alert.AlertType.WARNING, warningMessage, ButtonType.OK, ButtonType.CANCEL).showAndWait();
+            if (buttonPressed.isPresent() && buttonPressed.get() == ButtonType.OK) {
+                returnMsg = ClientModel.getInstance().quitGame(gameSession.getSessionNumber());
+                if (!returnMsg.equals("")) {
+                    new Alert(Alert.AlertType.ERROR, returnMsg, ButtonType.OK).showAndWait();
+                }
+                changeScene(((Node) event.getSource()).getScene(), "GamesMenu.fxml");
+            }
+        }
+        else {  // Game hasn't started
+            returnMsg = ClientModel.getInstance().quitGame(gameName);
+            if (!returnMsg.equals("")) {
+                new Alert(Alert.AlertType.ERROR, returnMsg, ButtonType.OK).showAndWait();
+            }
             changeScene(((Node) event.getSource()).getScene(), "GamesMenu.fxml");
         }
     }

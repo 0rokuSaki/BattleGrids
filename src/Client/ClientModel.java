@@ -185,6 +185,15 @@ public class ClientModel implements Client {
         }
     }
 
+    public String quitGame(String gameName) {
+        try {
+            return serverStub.handleQuitGameRequest(username, gameName);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return "Cannot reach server";
+        }
+    }
+
     //////////////////////////////////////////////////////
     /////////////////// PRIVATE METHODS //////////////////
     //////////////////////////////////////////////////////

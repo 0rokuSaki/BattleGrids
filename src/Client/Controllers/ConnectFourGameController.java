@@ -26,6 +26,7 @@ public class ConnectFourGameController extends GameControllerBase {
     @FXML
     void initialize() {
         super.initialize();
+        this.gameName = "Connect Four";
         this.instructions = "Be the first player to connect 4 of the same colored discs in a row (either vertically, horizontally, or diagonally).\n" +
                 "To place a disc, click on one of the seven buttons. The disc will be placed at the lowest free spot in the chosen column.";
     }
@@ -78,11 +79,10 @@ public class ConnectFourGameController extends GameControllerBase {
 
     @Override
     public void updateGame(GameSession gameSession) {
-        this.gameSession = gameSession;  // Update game session
+        super.updateGame(gameSession);
 
         // Update grid
         String[][] gameBoard = gameSession.getGameBoard();
-        String username = ClientModel.getInstance().getUsername();
         final int divideCoef = GRID_SIZE * 3;
         for (int row = 0; row < GRID_SIZE - 1; row++) {
             for (int col = 0; col < GRID_SIZE; col++) {
@@ -96,13 +96,12 @@ public class ConnectFourGameController extends GameControllerBase {
             }
         }
 
-        String winner = gameSession.getWinner();
-        if (winner != null) {
-            Alert a = new Alert(Alert.AlertType.INFORMATION, winner + " has won the game!");
+        if (gameSession.getWinner() != null) {
+            Alert a = new Alert(Alert.AlertType.INFORMATION, gameSession.getWinner() + " has won the game!");
             a.showAndWait();
             changeScene(gridRootPane.getScene(), "GamesMenu.fxml");
         }
-        if (ClientModel.getInstance().getUsername().equals(gameSession.getCurrTurn())) {
+        if (username.equals(gameSession.getCurrTurn())) {
             activateButtons();  // Activate buttons if its the user's turn
         }
 
