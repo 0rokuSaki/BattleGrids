@@ -16,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ServerImpl implements Server, Runnable {
 
@@ -39,7 +40,7 @@ public class ServerImpl implements Server, Runnable {
         gameSessions = new ConcurrentHashMap<>();
         gameWaitingQueues = new HashMap<>();
         for (String game : gamesList) {
-            gameWaitingQueues.put(game, new LinkedList<>());
+            gameWaitingQueues.put(game, new ConcurrentLinkedQueue<>());
         }
     }
 
@@ -117,7 +118,7 @@ public class ServerImpl implements Server, Runnable {
     }
 
     @Override
-    public synchronized String handlePlayGameRequest(String username, String gameName) throws RemoteException {
+    public String handlePlayGameRequest(String username, String gameName) throws RemoteException {
         if (!loggedInUsersPool.contains(username)) {
             return "Unable to identify user";
         }
@@ -204,13 +205,42 @@ public class ServerImpl implements Server, Runnable {
     }
 
     @Override
-    public String handleQuitGameRequest(long sessionNumber) throws RemoteException {
+    public String handleQuitGameRequest(String username, long sessionNumber) throws RemoteException {
         GameSession gameSession = gameSessions.get(sessionNumber);
         if (gameSession == null) {
             return "Invalid session number";
         }
         gameSessions.remove(sessionNumber);  // Remove session from gameSessions
         gameSession.releaseNumber();         // Release session number
+        gameSession.setPlayerQuit();
+
+        // Notify the winner
+        Client winningPlayer;
+        try {
+            winningPlayer = (Client) rmiRegistry.lookup(gameSession.getWinner());
+        } catch (NotBoundException e) {
+            e.printStackTrace();
+            return "Internal server error";
+        }
+        winningPlayer.updateGame(gameSession);
+        return "";
+    }
+
+    @Override
+    public String handleQuitGameRequest(String username, String gameName) throws RemoteException {
+        if (!loggedInUsersPool.contains(username)) {
+            return "Unable to identify user";
+        }
+        Queue<String> waitingQueue = gameWaitingQueues.get(gameName);
+        if (waitingQueue == null) {
+            return "Invalid game selected";
+        }
+        if (!waitingQueue.contains(username)) {
+            return "Username is not in the waiting queue";
+        }
+        if (!waitingQueue.removeIf(element -> element.equals(username))) {
+            return "Internal server error";
+        }
         return "";
     }
 

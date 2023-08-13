@@ -1,41 +1,32 @@
 package Client.Controllers;
 
 import Client.ClientModel;
-import Shared.GameSession;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 public class ConnectFourGameController extends GameControllerBase {
 
-    //////////////////////////////////////////////////////
-    ////////////////// STATIC VARIABLES //////////////////
-    //////////////////////////////////////////////////////
     private static final int GRID_SIZE = 7;
 
-    //////////////////////////////////////////////////////
-    /////////////// PACKAGE-PRIVATE METHODS //////////////
-    //////////////////////////////////////////////////////
-    @FXML
-    void initialize() {
-        super.initialize();
-        this.instructions = "Be the first player to connect 4 of the same colored discs in a row (either vertically, horizontally, or diagonally).\n" +
+    public ConnectFourGameController() {
+        super();
+        gameName = "Connect Four";
+        instructions = "Be the first player to connect 4 of the same colored discs in a row (either vertically, horizontally, or diagonally).\n" +
                 "To place a disc, click on one of the seven buttons. The disc will be placed at the lowest free spot in the chosen column.";
     }
 
-    //////////////////////////////////////////////////////
-    //////////////////// PUBLIC METHODS //////////////////
-    //////////////////////////////////////////////////////
     @Override
-    public void initializeGame(GameSession gameSession) {
-        super.initializeGame(gameSession);
+    protected void initializeGrid() {
+        grid = new GridPane();
+        grid.setGridLinesVisible(true);
 
         // Set the bottom row with buttons numbered 1 to GRID_SIZE
         buttons = new Button[GRID_SIZE];
@@ -51,7 +42,7 @@ public class ConnectFourGameController extends GameControllerBase {
             grid.add(buttons[i], i, GRID_SIZE - 1);
         }
         if (!username.equals(gameSession.getCurrTurn())) {
-            deactivateButtons();
+            buttonsSetDisable(true);
         }
 
         // Make the grid responsive by adding row and column constraints
@@ -77,12 +68,8 @@ public class ConnectFourGameController extends GameControllerBase {
     }
 
     @Override
-    public void updateGame(GameSession gameSession) {
-        this.gameSession = gameSession;  // Update game session
-
-        // Update grid
+    protected void updateGrid() {
         String[][] gameBoard = gameSession.getGameBoard();
-        String username = ClientModel.getInstance().getUsername();
         final int divideCoef = GRID_SIZE * 3;
         for (int row = 0; row < GRID_SIZE - 1; row++) {
             for (int col = 0; col < GRID_SIZE; col++) {
@@ -95,31 +82,19 @@ public class ConnectFourGameController extends GameControllerBase {
                 grid.add(c, col, row);
             }
         }
-
-        String winner = gameSession.getWinner();
-        if (winner != null) {
-            Alert a = new Alert(Alert.AlertType.INFORMATION, winner + " has won the game!");
-            a.showAndWait();
-            changeScene(gridRootPane.getScene(), "GamesMenu.fxml");
-        }
-        if (ClientModel.getInstance().getUsername().equals(gameSession.getCurrTurn())) {
-            activateButtons();  // Activate buttons if its the user's turn
-        }
-
-        updateLabels();
     }
 
-    //////////////////////////////////////////////////////
-    /////////////////// PRIVATE METHODS //////////////////
-    //////////////////////////////////////////////////////
-    private void handleGameButtonPress(ActionEvent event) {
+    protected void handleGameButtonPress(ActionEvent event) {
         int col = Integer.parseInt(((Button) event.getSource()).getText()) - 1;
         if (!gameSession.legalMove(0, col)) {
             Alert a = new Alert(Alert.AlertType.INFORMATION, "Column " + (col + 1) + " is full, choose another one");
             a.showAndWait();
             return;
         }
-        deactivateButtons();
-        ClientModel.getInstance().makeMove(gameSession.getSessionNumber(), 0, col); // TODO: Handle return value
+        buttonsSetDisable(true);
+        String returnMsg = ClientModel.getInstance().makeMove(gameSession.getSessionNumber(), 0, col);
+        if (!returnMsg.equals("")) {
+            new Alert(Alert.AlertType.ERROR, returnMsg, ButtonType.OK);
+        }
     }
 }
