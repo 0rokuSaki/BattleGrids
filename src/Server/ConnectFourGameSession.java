@@ -25,6 +25,8 @@ public class ConnectFourGameSession extends GameSession {
 
         // Initialize a 2D String array representing the game board
         gameBoard = new String[GRID_SIZE - 1][GRID_SIZE];
+
+        movesLeft = GRID_SIZE * (GRID_SIZE - 1);
     }
 
     @Override
@@ -44,6 +46,8 @@ public class ConnectFourGameSession extends GameSession {
             updateCurrTurn();
             rowState[col]--;
         }
+        movesLeft--;          // One less move available
+        tie = movesLeft == 0; // It's a tie if no one won and no moves available
     }
 
     @Override
@@ -55,7 +59,7 @@ public class ConnectFourGameSession extends GameSession {
         int count = 1, x = row, y = col;
 
         // check horizontally
-        while (count != NUM_CONNECTED && y + 1 < gameBoard.length && getCurrTurn().equals(gameBoard[x][y + 1])) {
+        while (count != NUM_CONNECTED && y + 1 < gameBoard[0].length && getCurrTurn().equals(gameBoard[x][y + 1])) {
             count++;
             y++;
         }

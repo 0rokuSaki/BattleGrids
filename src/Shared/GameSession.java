@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class GameSession implements Serializable {
+public abstract class GameSession implements Serializable {
     private final static List<Long> sessionNumbers = new ArrayList<>();
 
     private Long sessionNumber;
@@ -14,6 +14,8 @@ public class GameSession implements Serializable {
     private String currTurn;
     private String winner;
     private boolean playerQuit;
+    protected boolean tie;
+    protected int movesLeft;
 
     public GameSession(String player1, String player2) {
         Random random = new Random(); // Assign a random session number
@@ -27,6 +29,7 @@ public class GameSession implements Serializable {
         currTurn = player1;
         winner = null;
         playerQuit = false;
+        tie = false;
     }
 
     public void releaseNumber() {
@@ -61,6 +64,10 @@ public class GameSession implements Serializable {
         return playerQuit;
     }
 
+    public boolean getTie() {
+        return tie;
+    }
+
     public void updateCurrTurn() {
         currTurn = (currTurn.equals(player1) ? player2 : player1);
     }
@@ -75,7 +82,11 @@ public class GameSession implements Serializable {
         setWinnerAsCurrent();
     }
 
-    public boolean legalMove(int row, int col) { return false; }
+    public void setTie(boolean tie) {
+        this.tie = tie;
+    }
 
-    public void makeMove(int row, int col) {}
+    public abstract boolean legalMove(int row, int col);
+
+    public abstract void makeMove(int row, int col);
 }
