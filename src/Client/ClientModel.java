@@ -2,11 +2,10 @@ package Client;
 
 import Client.Controllers.GameController;
 import Shared.Client;
-import Shared.GameSession;
+import Server.GameSession.GameSessionBase;
 import Shared.Server;
 import javafx.application.Platform;
 
-import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -21,7 +20,7 @@ public class ClientModel implements Client {
     //////////////////////////////////////////////////////
     public void testConnection() throws RemoteException {}
 
-    public void initializeGame(GameSession gameSession) throws RemoteException {
+    public void initializeGame(GameSessionBase gameSession) throws RemoteException {
         Platform.runLater(() -> {
             if (gameController != null) {
                 gameController.initializeGame(gameSession);
@@ -30,7 +29,7 @@ public class ClientModel implements Client {
     }
 
     @Override
-    public void updateGame(GameSession gameSession) throws RemoteException {
+    public void updateGame(GameSessionBase gameSession) throws RemoteException {
         Platform.runLater(() -> {
             if (gameController != null) {
                 gameController.updateGame(gameSession);
