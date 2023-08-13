@@ -112,22 +112,23 @@ public abstract class GameControllerBase extends ControllerBase implements GameC
     @Override
     public void updateGame(GameSession gameSession) {
         this.gameSession = gameSession;
-        boolean gameFinished = false;
-        Alert alert = null;
+        boolean gameFinished = (gameSession.getWinner() != null) || gameSession.getPlayerQuit() || gameSession.getTie();
+        String alertContextText = null;
         if (gameSession.getWinner() != null) {
-            alert = new Alert(Alert.AlertType.INFORMATION);
             if (gameSession.getPlayerQuit()) {
-                alert.setContentText("You win! " + opponentName + " quit the game.");
+                alertContextText = "You win! " + opponentName + " quit the game.";
             }
             else {
-                alert.setContentText(gameSession.getWinner() + " won the game!");
+                alertContextText = gameSession.getWinner() + " won the game!";
             }
-            gameFinished = true;
+        }
+        else if (gameSession.getTie()) {
+            alertContextText = "It's a tie!";
         }
         updateGrid();
         updateLabels();
         if (gameFinished) {
-            alert.showAndWait();
+            new Alert(Alert.AlertType.INFORMATION, alertContextText).showAndWait();
             changeScene(gridRootPane.getScene(), "GamesMenu.fxml");
         }
         else if (username.equals(gameSession.getCurrTurn())) {
