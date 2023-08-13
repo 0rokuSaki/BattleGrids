@@ -46,11 +46,21 @@ public class GameControllerBase extends ControllerBase implements GameController
 
     String instructions;
 
+    String username;
+
+    boolean gameStarted;
+
     //////////////////////////////////////////////////////
     //////////////////// PUBLIC METHODS //////////////////
     //////////////////////////////////////////////////////
     @Override
-    public void initializeGame(GameSession gameSession) {}
+    public void initializeGame(GameSession gameSession) {
+        this.gameSession = gameSession;
+        this.gameStarted = true;
+        updateLabels();
+        grid = new GridPane();
+        grid.setGridLinesVisible(true);
+    }
 
     @Override
     public void updateGame(GameSession gameSession) {}
@@ -60,6 +70,8 @@ public class GameControllerBase extends ControllerBase implements GameController
     //////////////////////////////////////////////////////
     @FXML
     void initialize() {
+        this.username = ClientModel.getInstance().getUsername();
+        this.gameStarted = false;
         ClientModel.getInstance().setGameController(this);
         // Set info label
         infoLabel.setText("Waiting for player...");
@@ -93,7 +105,6 @@ public class GameControllerBase extends ControllerBase implements GameController
     }
 
     void updateLabels() {
-        String username = ClientModel.getInstance().getUsername();
         String player1 = gameSession.getPlayer1();
         String player2 = gameSession.getPlayer2();
         String opponentName = username.equals(player1) ? player2 : player1;

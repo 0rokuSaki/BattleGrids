@@ -4,7 +4,6 @@ import Client.ClientModel;
 import Shared.GameSession;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -16,56 +15,46 @@ import javafx.scene.shape.Circle;
 
 public class ConnectFourGameController extends GameControllerBase {
 
-    private final int GRID_SIZE = 7;
+    //////////////////////////////////////////////////////
+    ////////////////// STATIC VARIABLES //////////////////
+    //////////////////////////////////////////////////////
+    private static final int GRID_SIZE = 7;
 
+    //////////////////////////////////////////////////////
+    /////////////// PACKAGE-PRIVATE METHODS //////////////
+    //////////////////////////////////////////////////////
     @FXML
     void initialize() {
         super.initialize();
-        instructions = "Be the first player to connect 4 of the same colored discs in a row (either vertically, horizontally, or diagonally).\n" +
+        this.instructions = "Be the first player to connect 4 of the same colored discs in a row (either vertically, horizontally, or diagonally).\n" +
                 "To place a disc, click on one of the seven buttons. The disc will be placed at the lowest free spot in the chosen column.";
     }
 
     //////////////////////////////////////////////////////
     //////////////////// PUBLIC METHODS //////////////////
     //////////////////////////////////////////////////////
-
     @Override
     public void initializeGame(GameSession gameSession) {
-        // Set game session
-        this.gameSession = gameSession;
+        super.initializeGame(gameSession);
 
-        // Initialize labels
-        updateLabels();
-
-        // Create a 7 by 7 grid
-        grid = new GridPane();
-        grid.setGridLinesVisible(true);
-
-        // set the bottom row with buttons numbered 1 to GRID_SIZE
+        // Set the bottom row with buttons numbered 1 to GRID_SIZE
+        buttons = new Button[GRID_SIZE];
         double buttonWidth = grid.widthProperty().divide(GRID_SIZE).doubleValue();
         double buttonHeight = grid.heightProperty().divide(GRID_SIZE).doubleValue();
-
-        buttons = new Button[GRID_SIZE];
         for (int i = 0; i < GRID_SIZE; i ++) {
             buttons[i] = new Button("" + (i + 1));
             buttons[i].setPrefSize(gridRootPane.getPrefWidth() / GRID_SIZE, gridRootPane.getPrefHeight() / GRID_SIZE);
             buttons[i].setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
             buttons[i].setMinSize(0, 0);
             buttons[i].setPrefSize(buttonWidth, buttonHeight);
-            buttons[i].setOnAction(new EventHandler<ActionEvent>() {
-
-                @Override
-                public void handle(ActionEvent event) {
-                    handleGameButtonPress(event);
-                }
-            });
-            grid.add(buttons[i], i, GRID_SIZE - 1); // add button to grid
+            buttons[i].setOnAction(this::handleGameButtonPress);
+            grid.add(buttons[i], i, GRID_SIZE - 1);
         }
-
-        if (!ClientModel.getInstance().getUsername().equals(gameSession.getCurrTurn())) {
+        if (!username.equals(gameSession.getCurrTurn())) {
             deactivateButtons();
         }
 
+        // Make the grid responsive by adding row and column constraints
         ColumnConstraints colConstraints = new ColumnConstraints();
         colConstraints.setPercentWidth(100.0 / GRID_SIZE); // Equal width columns
         colConstraints.setHalignment(HPos.CENTER);
