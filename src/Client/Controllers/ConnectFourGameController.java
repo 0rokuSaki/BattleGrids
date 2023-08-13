@@ -2,130 +2,59 @@ package Client.Controllers;
 
 import Client.ClientModel;
 import Shared.GameSession;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
-import java.io.IOException;
-import java.util.Optional;
+public class ConnectFourGameController extends GameControllerBase {
 
-public class ConnectFourGameController extends ControllerBase implements GameController {
+    //////////////////////////////////////////////////////
+    ////////////////// STATIC VARIABLES //////////////////
+    //////////////////////////////////////////////////////
+    private static final int GRID_SIZE = 7;
 
-    private final int GRID_SIZE = 7;
-
-    @FXML
-    private HBox buttonsContainer;
-
-    @FXML
-    private Label opponentLabel;
-
-    @FXML
-    private Label divideLabel;
-
-    @FXML
-    private Label infoLabel;
-
-    @FXML
-    private VBox labelsContainer;
-
-    @FXML
-    private Pane gridRootPane;
-
-    private GridPane grid;
-
-    private Button[] buttons;
-
-    private GameSession gameSession;
-
+    //////////////////////////////////////////////////////
+    /////////////// PACKAGE-PRIVATE METHODS //////////////
+    //////////////////////////////////////////////////////
     @FXML
     void initialize() {
-        ClientModel.getInstance().setGameController(this);
-        // Set info label
-        infoLabel.setText("Waiting for player...");
-        infoLabel.setTextFill(Color.GREEN);
-
-        Platform.runLater(() -> {
-            // Set size of gridRoot in the window
-            AnchorPane.setLeftAnchor(gridRootPane, 0.0);
-            AnchorPane.setRightAnchor(gridRootPane, 0.0);
-            AnchorPane.setTopAnchor(gridRootPane, labelsContainer.getHeight());
-            AnchorPane.setBottomAnchor(gridRootPane, buttonsContainer.getHeight());
-        });
-    }
-
-    @FXML
-    void instructionsButtonPress(ActionEvent event) {
-        String instructions = "Be the first player to connect 4 of the same colored discs in a row (either vertically, horizontally, or diagonally).\n" +
-                              "To place a disc, click on one of the seven buttons. The disc will be placed at the lowest free spot in the chosen column.";
-        Alert a = new Alert(Alert.AlertType.INFORMATION, instructions);
-        a.setHeaderText("Instructions");
-        a.showAndWait();
-    }
-
-    @FXML
-    void quitGameButtonPress(ActionEvent event) {
-        String warningMessage = "Quitting will cause you to lose the match. Are you sure?";
-        Alert a = new Alert(Alert.AlertType.WARNING, warningMessage, ButtonType.OK, ButtonType.CANCEL);
-        Optional<ButtonType> buttonPressed = a.showAndWait();
-        if (buttonPressed.isPresent() && buttonPressed.get() == ButtonType.OK) {
-            ClientModel.getInstance().quitGame(gameSession.getSessionNumber());
-        }
-        changeScene(((Node) event.getSource()).getScene(), "GamesMenu.fxml");
+        super.initialize();
+        this.instructions = "Be the first player to connect 4 of the same colored discs in a row (either vertically, horizontally, or diagonally).\n" +
+                "To place a disc, click on one of the seven buttons. The disc will be placed at the lowest free spot in the chosen column.";
     }
 
     //////////////////////////////////////////////////////
     //////////////////// PUBLIC METHODS //////////////////
     //////////////////////////////////////////////////////
-
     @Override
     public void initializeGame(GameSession gameSession) {
-        // Set game session
-        this.gameSession = gameSession;
+        super.initializeGame(gameSession);
 
-        // Initialize labels
-        updateLabels();
-
-        // Create a 7 by 7 grid
-        grid = new GridPane();
-        grid.setGridLinesVisible(true);
-
-        // set the bottom row with buttons numbered 1 to GRID_SIZE
+        // Set the bottom row with buttons numbered 1 to GRID_SIZE
+        buttons = new Button[GRID_SIZE];
         double buttonWidth = grid.widthProperty().divide(GRID_SIZE).doubleValue();
         double buttonHeight = grid.heightProperty().divide(GRID_SIZE).doubleValue();
-
-        buttons = new Button[GRID_SIZE];
         for (int i = 0; i < GRID_SIZE; i ++) {
             buttons[i] = new Button("" + (i + 1));
             buttons[i].setPrefSize(gridRootPane.getPrefWidth() / GRID_SIZE, gridRootPane.getPrefHeight() / GRID_SIZE);
             buttons[i].setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
             buttons[i].setMinSize(0, 0);
             buttons[i].setPrefSize(buttonWidth, buttonHeight);
-            buttons[i].setOnAction(new EventHandler<ActionEvent>() {
-
-                @Override
-                public void handle(ActionEvent event) {
-                    handleGameButtonPress(event);
-                }
-            });
-            grid.add(buttons[i], i, GRID_SIZE - 1); // add button to grid
+            buttons[i].setOnAction(this::handleGameButtonPress);
+            grid.add(buttons[i], i, GRID_SIZE - 1);
         }
-
-        if (!ClientModel.getInstance().getUsername().equals(gameSession.getCurrTurn())) {
+        if (!username.equals(gameSession.getCurrTurn())) {
             deactivateButtons();
         }
 
+        // Make the grid responsive by adding row and column constraints
         ColumnConstraints colConstraints = new ColumnConstraints();
         colConstraints.setPercentWidth(100.0 / GRID_SIZE); // Equal width columns
         colConstraints.setHalignment(HPos.CENTER);
@@ -148,7 +77,7 @@ public class ConnectFourGameController extends ControllerBase implements GameCon
     }
 
     @Override
-    public void updateGame(GameSession gameSession) throws IOException {
+    public void updateGame(GameSession gameSession) {
         this.gameSession = gameSession;  // Update game session
 
         // Update grid
@@ -192,39 +121,5 @@ public class ConnectFourGameController extends ControllerBase implements GameCon
         }
         deactivateButtons();
         ClientModel.getInstance().makeMove(gameSession.getSessionNumber(), 0, col); // TODO: Handle return value
-    }
-
-    private void updateLabels() {
-        String username = ClientModel.getInstance().getUsername();
-        String player1 = gameSession.getPlayer1();
-        String player2 = gameSession.getPlayer2();
-        String opponentName = username.equals(player1) ? player2 : player1;
-        String currTurn = username.equals(gameSession.getCurrTurn()) ? "Your turn" : opponentName + "'s turn";
-        Color infoLabelTextFill = username.equals(gameSession.getCurrTurn()) ? Color.BLUE : Color.RED;
-
-        // Opponent label
-        opponentLabel.setText("Opponent: " + opponentName);
-        opponentLabel.setTextFill(Color.RED);
-        opponentLabel.setVisible(true);
-
-        // Divide label
-        divideLabel.setVisible(true);
-
-        // Info label
-        infoLabel.setText(currTurn);
-        infoLabel.setTextFill(infoLabelTextFill);
-        infoLabel.setVisible(true);
-    }
-
-    private void activateButtons() {
-        for (Button button : buttons) {
-            button.setDisable(false);
-        }
-    }
-
-    private void deactivateButtons() {
-        for (Button button : buttons) {
-            button.setDisable(true);
-        }
     }
 }
