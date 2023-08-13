@@ -17,8 +17,8 @@ public class DBManagerImpl implements DBManager {
         statement = connection.createStatement();//creating statement
         statement.executeUpdate("CREATE DATABASE IF NOT EXISTS mydatabase");
         statement.executeUpdate("USE mydatabase");////using mydatabase
-        // statement.executeUpdate("DROP TABLE IF EXISTS users");//deleting table "users" TODO: Remove later
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS users (username varchar (255) PRIMARY KEY, passwordHash char (32))");//creating table "users"
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS users (" + "username varchar(255) PRIMARY KEY, " + "passwordHash char(32), " + "connectFourWins int, " + "ticTacToeWins int)");
+        //statement.executeUpdate("CREATE TABLE IF NOT EXISTS users (username varchar (255) PRIMARY KEY, passwordHash char (32), connectFour int, ticTacToe int");//creating table "users"
     }
 
 
@@ -68,6 +68,58 @@ public class DBManagerImpl implements DBManager {
             String passwordHash = resultSet.getString("passwordHash");
             resultSet.close();
             return(passwordHash);
+        }catch (SQLException exception)
+        {
+            return (null);
+        }
+    }
+
+    public Integer setConnectFourWins(String username, int connectFourWins)
+    {
+        try {
+            String updateQuery = "UPDATE users SET connectFourWins = '" + connectFourWins + "' WHERE username = '" + username + "'";
+            statement.executeUpdate(updateQuery);
+            return (connectFourWins);
+
+        } catch (SQLException exception) {
+            return null;
+        }
+    }
+    public Integer getConnectFourWins(String username)
+    {
+        try{
+            ResultSet resultSet = statement.executeQuery("SELECT connectFourWins FROM users WHERE username = '"+username+"'");
+            resultSet.next();
+            Integer connectFourWins = resultSet.getInt("connectFourWins");
+            resultSet.close();
+            return(connectFourWins);
+
+        }catch (SQLException exception)
+        {
+            return (null);
+        }
+    }
+
+    public Integer setTicTacToeWins(String username, int ticTacToeWins)
+    {
+        try {
+            String updateQuery = "UPDATE users SET ticTacToeWins = '" + ticTacToeWins + "' WHERE username = '" + username + "'";
+            statement.executeUpdate(updateQuery);
+            return (ticTacToeWins);
+
+        } catch (SQLException exception) {
+            return null;
+        }
+    }
+    public Integer getTicTacToeWins(String username)
+    {
+        try{
+            ResultSet resultSet = statement.executeQuery("SELECT ticTacToeWins FROM users WHERE username = '"+username+"'");
+            resultSet.next();
+            Integer ticTacToeWins = resultSet.getInt("ticTacToeWins");
+            resultSet.close();
+            return(ticTacToeWins);
+
         }catch (SQLException exception)
         {
             return (null);
