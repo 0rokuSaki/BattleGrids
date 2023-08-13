@@ -205,13 +205,24 @@ public class ServerImpl implements Server, Runnable {
     }
 
     @Override
-    public String handleQuitGameRequest(long sessionNumber) throws RemoteException {
+    public String handleQuitGameRequest(String username, long sessionNumber) throws RemoteException {
         GameSession gameSession = gameSessions.get(sessionNumber);
         if (gameSession == null) {
             return "Invalid session number";
         }
         gameSessions.remove(sessionNumber);  // Remove session from gameSessions
         gameSession.releaseNumber();         // Release session number
+        gameSession.setPlayerQuit();
+
+        // Notify the winner
+        Client winningPlayer;
+        try {
+            winningPlayer = (Client) rmiRegistry.lookup(gameSession.getWinner());
+        } catch (NotBoundException e) {
+            e.printStackTrace();
+            return "Internal server error";
+        }
+        winningPlayer.updateGame(gameSession);
         return "";
     }
 

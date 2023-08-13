@@ -7,5 +7,5 @@ import java.io.IOException;
 public interface GameController {
     public void initializeGame(GameSession gameSession);
 
-    public void updateGame(GameSession gameSession) throws IOException;
+    public void updateGame(GameSession gameSession);
 }

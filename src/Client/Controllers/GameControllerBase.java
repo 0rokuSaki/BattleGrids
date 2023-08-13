@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -15,68 +16,47 @@ import javafx.scene.paint.Color;
 
 import java.util.Optional;
 
-public class GameControllerBase extends ControllerBase implements GameController {
-
-    //////////////////////////////////////////////////////
-    ///////// PACKAGE-PRIVATE INSTANCE VARIABLES /////////
-    //////////////////////////////////////////////////////
-    @FXML
-    HBox buttonsContainer;
+public abstract class GameControllerBase extends ControllerBase implements GameController {
 
     @FXML
-    VBox labelsContainer;
+    protected HBox buttonsContainer;
 
     @FXML
-    Pane gridRootPane;
+    protected VBox labelsContainer;
 
     @FXML
-    Label opponentLabel;
+    protected Pane gridRootPane;
 
     @FXML
-    Label divideLabel;
+    protected Label opponentLabel;
 
     @FXML
-    Label infoLabel;
+    protected Label divideLabel;
 
-    GridPane grid;
-
-    Button[] buttons;
-
-    GameSession gameSession;
-
-    String instructions;
-
-    String username;
-
-    String gameName;
-
-    boolean gameStarted;
-
-    //////////////////////////////////////////////////////
-    //////////////////// PUBLIC METHODS //////////////////
-    //////////////////////////////////////////////////////
-    @Override
-    public void initializeGame(GameSession gameSession) {
-        this.gameSession = gameSession;
-        this.gameStarted = true;
-        updateLabels();
-        grid = new GridPane();
-        grid.setGridLinesVisible(true);
-    }
-
-    @Override
-    public void updateGame(GameSession gameSession) {
-        this.gameSession = gameSession;
-    }
-
-    //////////////////////////////////////////////////////
-    /////////////// PACKAGE-PRIVATE METHODS //////////////
-    //////////////////////////////////////////////////////
     @FXML
-    void initialize() {
-        this.username = ClientModel.getInstance().getUsername();
-        this.gameStarted = false;
+    protected Label infoLabel;
+
+    protected GridPane grid;
+
+    protected Button[] buttons;
+
+    protected GameSession gameSession;
+
+    protected String username;
+
+    protected String opponentName;
+
+    protected String gameName;
+
+    protected String instructions;
+
+    protected GameControllerBase() {
         ClientModel.getInstance().setGameController(this);
+        username = ClientModel.getInstance().getUsername();
+    }
+
+    @FXML
+    protected void initialize() {
         // Set info label
         infoLabel.setText("Waiting for player...");
         infoLabel.setTextFill(Color.GREEN);
@@ -91,16 +71,16 @@ public class GameControllerBase extends ControllerBase implements GameController
     }
 
     @FXML
-    void instructionsButtonPress(ActionEvent event) {
+    protected void instructionsButtonPress() {
         Alert a = new Alert(Alert.AlertType.INFORMATION, instructions);
         a.setHeaderText("Instructions");
         a.showAndWait();
     }
 
     @FXML
-    void quitGameButtonPress(ActionEvent event) {
+    protected void quitGameButtonPress(ActionEvent event) {
         String returnMsg;
-        if (gameStarted) {
+        if (gameSession != null) { // If game already started
             String warningMessage = "Quitting will cause you to lose the match. Are you sure?";
             Optional<ButtonType> buttonPressed =
                     new Alert(Alert.AlertType.WARNING, warningMessage, ButtonType.OK, ButtonType.CANCEL).showAndWait();
@@ -121,10 +101,47 @@ public class GameControllerBase extends ControllerBase implements GameController
         }
     }
 
-    void updateLabels() {
-        String player1 = gameSession.getPlayer1();
-        String player2 = gameSession.getPlayer2();
-        String opponentName = username.equals(player1) ? player2 : player1;
+    @Override
+    public void initializeGame(GameSession gameSession) {
+        this.gameSession = gameSession;
+        this.opponentName = username.equals(gameSession.getPlayer1()) ? gameSession.getPlayer1() : gameSession.getPlayer2();
+        updateLabels();
+        initializeGrid();
+    }
+
+    @Override
+    public void updateGame(GameSession gameSession) {
+        this.gameSession = gameSession;
+        boolean gameFinished = false;
+        Alert alert = null;
+        if (gameSession.getWinner() != null) {
+            alert = new Alert(Alert.AlertType.INFORMATION);
+            if (gameSession.getPlayerQuit()) {
+                alert.setContentText("You win! " + opponentName + " quit the game.");
+            }
+            else {
+                alert.setContentText(gameSession.getWinner() + " won the game!");
+            }
+            gameFinished = true;
+        }
+        updateGrid();
+        updateLabels();
+        if (gameFinished) {
+            alert.showAndWait();
+            changeScene(gridRootPane.getScene(), "GamesMenu.fxml");
+        }
+        else if (username.equals(gameSession.getCurrTurn())) {
+            buttonsSetDisable(false); // Activate buttons if its the user's turn
+        }
+    }
+
+    @Override
+    protected void changeScene(Scene prevScene, String fxmlName) {
+        ClientModel.getInstance().setGameController(null);
+        super.changeScene(prevScene, fxmlName);
+    }
+
+    protected void updateLabels() {
         String currTurn = username.equals(gameSession.getCurrTurn()) ? "Your turn" : opponentName + "'s turn";
         Color infoLabelTextFill = username.equals(gameSession.getCurrTurn()) ? Color.BLUE : Color.RED;
 
@@ -142,15 +159,15 @@ public class GameControllerBase extends ControllerBase implements GameController
         infoLabel.setVisible(true);
     }
 
-    void activateButtons() {
+    protected void buttonsSetDisable(boolean val) {
         for (Button button : buttons) {
-            button.setDisable(false);
+            button.setDisable(val);
         }
     }
 
-    void deactivateButtons() {
-        for (Button button : buttons) {
-            button.setDisable(true);
-        }
-    }
+    protected abstract void initializeGrid();
+
+    protected abstract void updateGrid();
+
+    protected abstract void handleGameButtonPress(ActionEvent event);
 }

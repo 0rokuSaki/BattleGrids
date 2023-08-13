@@ -23,17 +23,17 @@ public class ClientModel implements Client {
 
     public void initializeGame(GameSession gameSession) throws RemoteException {
         Platform.runLater(() -> {
-            gameController.initializeGame(gameSession);
+            if (gameController != null) {
+                gameController.initializeGame(gameSession);
+            }
         });
     }
 
     @Override
     public void updateGame(GameSession gameSession) throws RemoteException {
         Platform.runLater(() -> {
-            try {
+            if (gameController != null) {
                 gameController.updateGame(gameSession);
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         });
     }
@@ -178,7 +178,7 @@ public class ClientModel implements Client {
 
     public String quitGame(long sessionNumber) {
         try {
-            return serverStub.handleQuitGameRequest(sessionNumber);
+            return serverStub.handleQuitGameRequest(username, sessionNumber);
         } catch (RemoteException e) {
             e.printStackTrace();
             return "Cannot reach server";

@@ -20,7 +20,7 @@ public interface Server extends Remote {
 
     String handleMakeMoveRequest(long sessionNumber, int row, int col) throws RemoteException;
 
-    String handleQuitGameRequest(long sessionNumber) throws RemoteException;
+    String handleQuitGameRequest(String username, long sessionNumber) throws RemoteException;
 
     String handleQuitGameRequest(String username, String gameName) throws RemoteException;
 }

@@ -13,6 +13,7 @@ public class GameSession implements Serializable {
     private final String player2;
     private String currTurn;
     private String winner;
+    private boolean playerQuit;
 
     public GameSession(String player1, String player2) {
         Random random = new Random(); // Assign a random session number
@@ -25,6 +26,7 @@ public class GameSession implements Serializable {
         this.player2 = player2;
         currTurn = player1;
         winner = null;
+        playerQuit = false;
     }
 
     public void releaseNumber() {
@@ -55,12 +57,22 @@ public class GameSession implements Serializable {
         return null;
     }
 
+    public boolean getPlayerQuit() {
+        return playerQuit;
+    }
+
     public void updateCurrTurn() {
         currTurn = (currTurn.equals(player1) ? player2 : player1);
     }
 
     public void setWinnerAsCurrent() {
         winner = currTurn;
+    }
+
+    public void setPlayerQuit() {
+        playerQuit = true;
+        updateCurrTurn();
+        setWinnerAsCurrent();
     }
 
     public boolean legalMove(int row, int col) { return false; }
