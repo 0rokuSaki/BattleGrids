@@ -1,6 +1,7 @@
 package Server;
 
 import Server.GameSession.ConnectFourGameSession;
+import Server.GameSession.TicTacToeGameSession;
 import Shared.Client;
 import Server.GameSession.GameSessionBase;
 import Shared.Server;
@@ -161,6 +162,9 @@ public class ServerImpl implements Server, Runnable {
         switch (gameName) {
             case "Connect Four":
                 gameSession = new ConnectFourGameSession(otherUser, username);
+                break;
+            case "Tic Tac Toe":
+                gameSession = new TicTacToeGameSession(otherUser, username);
                 break;
             default:
                 return "Internal server error";
