@@ -104,7 +104,7 @@ public abstract class GameControllerBase extends ControllerBase implements GameC
     @Override
     public void initializeGame(GameSession gameSession) {
         this.gameSession = gameSession;
-        this.opponentName = username.equals(gameSession.getPlayer1()) ? gameSession.getPlayer1() : gameSession.getPlayer2();
+        this.opponentName = username.equals(gameSession.getPlayer1()) ? gameSession.getPlayer2() : gameSession.getPlayer1();
         updateLabels();
         initializeGrid();
     }

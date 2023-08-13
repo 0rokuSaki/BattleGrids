@@ -66,10 +66,9 @@ public abstract class GameSessionBase implements GameSession {
         return tie;
     }
 
-    public void setPlayerQuit() {
+    public void setPlayerQuit(String quittingPlayerName) {
         playerQuit = true;
-        currTurn = (currTurn.equals(player1) ? player2 : player1);
-        winner = currTurn;
+        winner = quittingPlayerName.equals(player1) ? player2 : player1;
     }
 
     public abstract String[][] getGameBoard();

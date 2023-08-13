@@ -213,7 +213,7 @@ public class ServerImpl implements Server, Runnable {
         }
         gameSessions.remove(sessionNumber);  // Remove session from gameSessions
         gameSession.releaseNumber();         // Release session number
-        gameSession.setPlayerQuit();
+        gameSession.setPlayerQuit(username);
 
         // Notify the winner
         Client winningPlayer;
