@@ -1,7 +1,8 @@
 package Server;
 
+import Server.GameSession.ConnectFourGameSession;
 import Shared.Client;
-import Shared.GameSession;
+import Server.GameSession.GameSessionBase;
 import Shared.Server;
 
 import javax.xml.bind.DatatypeConverter;
@@ -28,7 +29,7 @@ public class ServerImpl implements Server, Runnable {
 
     private final ArrayList<String> gamesList;
 
-    private final ConcurrentHashMap<Long, GameSession> gameSessions;
+    private final ConcurrentHashMap<Long, GameSessionBase> gameSessions;
 
     private final Registry rmiRegistry;
 
@@ -156,7 +157,7 @@ public class ServerImpl implements Server, Runnable {
         }
 
         // Create a game session object
-        GameSession gameSession;
+        GameSessionBase gameSession;
         switch (gameName) {
             case "Connect Four":
                 gameSession = new ConnectFourGameSession(otherUser, username);
@@ -175,7 +176,7 @@ public class ServerImpl implements Server, Runnable {
 
     @Override
     public String handleMakeMoveRequest(long sessionNumber, int row, int col) throws RemoteException {
-        GameSession gameSession = gameSessions.get(sessionNumber);
+        GameSessionBase gameSession = gameSessions.get(sessionNumber);
         if (gameSession == null) {
             return "Invalid session number";
         }
@@ -206,13 +207,13 @@ public class ServerImpl implements Server, Runnable {
 
     @Override
     public String handleQuitGameRequest(String username, long sessionNumber) throws RemoteException {
-        GameSession gameSession = gameSessions.get(sessionNumber);
+        GameSessionBase gameSession = gameSessions.get(sessionNumber);
         if (gameSession == null) {
             return "Invalid session number";
         }
         gameSessions.remove(sessionNumber);  // Remove session from gameSessions
         gameSession.releaseNumber();         // Release session number
-        gameSession.setPlayerQuit();
+        gameSession.setPlayerQuit(username);
 
         // Notify the winner
         Client winningPlayer;

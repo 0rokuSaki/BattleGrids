@@ -1,16 +1,12 @@
-package Server;
+package Server.GameSession;
 
-import Shared.GameSession;
-
-public class ConnectFourGameSession extends GameSession {
+public class ConnectFourGameSession extends GameSessionBase {
 
     private static final int GRID_SIZE = 7;
 
     private static final int NUM_CONNECTED = 4;
 
-    private int rowState[];
-
-    private String[][] gameBoard;
+    private final int[] rowState;
 
     public ConnectFourGameSession(String player1, String player2) {
         super(player1, player2);
@@ -43,7 +39,7 @@ public class ConnectFourGameSession extends GameSession {
         gameBoard[row][col] = getCurrTurn();
         checkForWinner(row, col);
         if (getWinner() == null) {
-            updateCurrTurn();
+            currTurn = (currTurn.equals(player1) ? player2 : player1);
             rowState[col]--;
         }
         movesLeft--;          // One less move available
@@ -108,7 +104,7 @@ public class ConnectFourGameSession extends GameSession {
             x++; y++;
         }
         if (count == NUM_CONNECTED) {
-            setWinnerAsCurrent();
+            winner = currTurn;
         }
     }
 }
