@@ -16,6 +16,8 @@ public class ConnectFourGameController extends GameControllerBase {
 
     private static final int GRID_SIZE = 7;
 
+    private Button[] buttons;
+
     public ConnectFourGameController() {
         super();
         gameName = "Connect Four";
@@ -34,7 +36,6 @@ public class ConnectFourGameController extends GameControllerBase {
         double buttonHeight = grid.heightProperty().divide(GRID_SIZE).doubleValue();
         for (int i = 0; i < GRID_SIZE; i ++) {
             buttons[i] = new Button("" + (i + 1));
-            buttons[i].setPrefSize(gridRootPane.getPrefWidth() / GRID_SIZE, gridRootPane.getPrefHeight() / GRID_SIZE);
             buttons[i].setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
             buttons[i].setMinSize(0, 0);
             buttons[i].setPrefSize(buttonWidth, buttonHeight);
@@ -95,6 +96,12 @@ public class ConnectFourGameController extends GameControllerBase {
         String returnMsg = ClientModel.getInstance().makeMove(gameSession.getSessionNumber(), 0, col);
         if (!returnMsg.equals("")) {
             new Alert(Alert.AlertType.ERROR, returnMsg, ButtonType.OK);
+        }
+    }
+
+    protected void buttonsSetDisable(boolean val) {
+        for (Button button : buttons) {
+            button.setDisable(val);
         }
     }
 }
