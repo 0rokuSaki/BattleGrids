@@ -352,7 +352,7 @@ public class ServerImpl implements Server, Runnable {
                     Client remote = (Client) rmiRegistry.lookup(username);
                     remote.testConnection();
                 } catch (RemoteException | NotBoundException ignored) {
-                    logger.info("User " + username + " is disconnected. Logging him out...");
+                    logger.info("User " + username + " appears to be disconnected. Logging him out...");
                     iter.remove();
                 }
             }
