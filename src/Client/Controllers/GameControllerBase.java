@@ -4,6 +4,7 @@ import Client.ClientModel;
 import Shared.GameSession;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -12,6 +13,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
 import java.util.Optional;
 
@@ -59,6 +61,10 @@ public abstract class GameControllerBase extends ControllerBase implements GameC
         infoLabel.setTextFill(Color.GREEN);
 
         Platform.runLater(() -> {
+            // Set warning message when attempting to close the window
+            Stage stage = (Stage) gridRootPane.getScene().getWindow();
+            stage.setOnCloseRequest(this::handleOnCloseRequest);
+
             // Set size of gridRoot in the window
             AnchorPane.setLeftAnchor(gridRootPane, 0.0);
             AnchorPane.setRightAnchor(gridRootPane, 0.0);
@@ -78,10 +84,7 @@ public abstract class GameControllerBase extends ControllerBase implements GameC
     protected void quitGameButtonPress(ActionEvent event) {
         String returnMsg;
         if (gameSession != null) { // If game already started
-            String warningMessage = "Quitting will cause you to lose the match. Are you sure?";
-            Optional<ButtonType> buttonPressed =
-                    new Alert(Alert.AlertType.WARNING, warningMessage, ButtonType.OK, ButtonType.CANCEL).showAndWait();
-            if (buttonPressed.isPresent() && buttonPressed.get() == ButtonType.OK) {
+            if (userWantsToQuit()) {
                 returnMsg = ClientModel.getInstance().quitGame(gameSession.getSessionNumber());
                 if (!returnMsg.equals("")) {
                     new Alert(Alert.AlertType.ERROR, returnMsg, ButtonType.OK).showAndWait();
@@ -134,8 +137,16 @@ public abstract class GameControllerBase extends ControllerBase implements GameC
     }
 
     @Override
+    public void terminateGame(String message) {
+        new Alert(Alert.AlertType.WARNING, message, ButtonType.OK).showAndWait();
+        changeScene(gridRootPane.getScene(), "GamesMenu.fxml");
+    }
+
+    @Override
     protected void changeScene(Scene prevScene, String fxmlName) {
         ClientModel.getInstance().setGameController(null);
+        Stage stage = (Stage) prevScene.getWindow();
+        stage.setOnCloseRequest(event -> {});
         super.changeScene(prevScene, fxmlName);
     }
 
@@ -157,6 +168,17 @@ public abstract class GameControllerBase extends ControllerBase implements GameC
         infoLabel.setVisible(true);
     }
 
+    protected void handleOnCloseRequest(Event event) {
+        if (userWantsToQuit()) { // If the user confirms, close the application
+            String returnMsg = ClientModel.getInstance().quitGame(gameSession.getSessionNumber());
+            if (!returnMsg.equals("")) {
+                new Alert(Alert.AlertType.ERROR, returnMsg, ButtonType.OK).showAndWait();
+            }
+            Platform.exit();
+        }
+        event.consume(); // Consume the event to prevent the window from closing
+    }
+
     protected abstract void initializeGrid();
 
     protected abstract void updateGrid();
@@ -164,4 +186,11 @@ public abstract class GameControllerBase extends ControllerBase implements GameC
     protected abstract void handleGameButtonPress(ActionEvent event);
 
     protected abstract void buttonsSetDisable(boolean val);
+
+    private boolean userWantsToQuit() {
+        String warningMessage = "Quitting will cause you to lose the match. Are you sure?";
+        Optional<ButtonType> buttonPressed =
+                new Alert(Alert.AlertType.WARNING, warningMessage, ButtonType.OK, ButtonType.CANCEL).showAndWait();
+        return (buttonPressed.isPresent() && buttonPressed.get() == ButtonType.OK);
+    }
 }

@@ -7,6 +7,7 @@ import Server.GameSession.GameSessionBase;
 import Shared.Server;
 
 import javax.xml.bind.DatatypeConverter;
+import java.rmi.AccessException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -262,6 +263,37 @@ public class ServerImpl implements Server, Runnable {
     @Override
     public void run() {
         while (true) {
+            // Terminate games where at least one user disconnected
+            Iterator<Map.Entry<Long, GameSessionBase>> gameSessionsIter = gameSessions.entrySet().iterator();
+            while (gameSessionsIter.hasNext()) {
+                Map.Entry<Long, GameSessionBase> entry = gameSessionsIter.next();
+
+                // Test connection of each user
+                Client client1 = null, client2 = null;
+                try {
+                    client1 = (Client) rmiRegistry.lookup(entry.getValue().getPlayer1());
+                    client2 = (Client) rmiRegistry.lookup(entry.getValue().getPlayer2());
+                    client1.testConnection();
+                    client2.testConnection();
+                    continue;  // Connection is OK, check next session
+                } catch (AccessException e) {
+                    e.printStackTrace();
+                } catch (NotBoundException | RemoteException ignored) {}
+
+                // Connection is not OK, terminate the game session
+                System.out.println("Terminating session " + entry.getKey() + " due to disconnected user");
+                gameSessionsIter.remove();
+                try {
+                    if (client1 != null) {
+                        client1.terminateGame("Game ended due to disconnected user");
+                    }
+                } catch (RemoteException ignored) {}
+                try {
+                    if (client2 != null) {
+                        client2.terminateGame("Game ended due to disconnected user");
+                    }
+                } catch (RemoteException ignored) {}
+            }
 
             // Remove all disconnected users from loggedInUsersPool
             Iterator<String> iter = loggedInUsersPool.iterator();
