@@ -2,6 +2,8 @@ package Server;
 
 import Shared.GameScoreData;
 
+import java.util.ArrayList;
+
 public interface DBManager {
     String printUsersTable();
     String addUser(String username, String passwordHash);
@@ -9,5 +11,5 @@ public interface DBManager {
     String getPasswordHash(String username);
     Boolean userExists(String username);
 
-    GameScoreData getGameScoreData(String username, String gameName);
+    ArrayList<GameScoreData> getGameScoreData(String gameName);
 }

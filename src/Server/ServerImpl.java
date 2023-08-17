@@ -4,6 +4,7 @@ import Server.GameSession.ConnectFourGameSession;
 import Server.GameSession.TicTacToeGameSession;
 import Shared.Client;
 import Server.GameSession.GameSessionBase;
+import Shared.GameScoreData;
 import Shared.Server;
 
 import javax.xml.bind.DatatypeConverter;
@@ -297,6 +298,11 @@ public class ServerImpl implements Server, Runnable {
             return "Internal server error";
         }
         return "";
+    }
+
+    @Override
+    public ArrayList<GameScoreData> handleGetScoreListRequest(String gameName) throws RemoteException {
+        return dbManager.getGameScoreData(gameName);
     }
 
     private static String getMd5DigestString(String inputString) {

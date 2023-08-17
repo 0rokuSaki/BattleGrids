@@ -41,13 +41,13 @@ public class HighScoresMenuController extends ControllerBase {
         // TODO: Get high scores
 
         // Create a table
+        ArrayList<GameScoreData> scoreData = ClientModel.getInstance().getScoreList(selectedGame);
+        if (scoreData == null) {
+            return;
+        }
+
         TableView<GameScoreData> tableView = new TableView<>();
-        ObservableList<GameScoreData> data = FXCollections.observableArrayList(
-                new GameScoreData("User1", 1, 1, 1),
-                new GameScoreData("User2", 2, 2, 2),
-                new GameScoreData("User3", 3, 3, 3),
-                new GameScoreData("User4", 4, 4, 4)
-            );
+        ObservableList<GameScoreData> data = FXCollections.observableArrayList(scoreData);
 
         TableColumn<GameScoreData, String> usernameColumn = new TableColumn<>("User Name");
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));

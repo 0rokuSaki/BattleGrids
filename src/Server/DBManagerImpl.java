@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Random;
 
 import static java.sql.DriverManager.*;
@@ -87,9 +88,11 @@ public class DBManagerImpl implements DBManager {
     }
 
     @Override
-    public GameScoreData getGameScoreData(String username, String gameName) {
+    public ArrayList<GameScoreData> getGameScoreData(String gameName) {
         // TODO: The following code is for testing only, remove later
         Random rand = new Random();
-        return new GameScoreData(username, rand.nextInt(101), rand.nextInt(101), rand.nextInt(101));
+        ArrayList<GameScoreData> result = new ArrayList<>();
+        result.add(new GameScoreData("Blah", rand.nextInt(101), rand.nextInt(101), rand.nextInt(101)));
+        return result;
     }
 }

@@ -1,6 +1,8 @@
 package Shared;
 
-public class GameScoreData {
+import java.io.Serializable;
+
+public class GameScoreData implements Serializable {
     private final String username;
     private final int won;
     private final int lost;

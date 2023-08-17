@@ -3,6 +3,7 @@ package Client;
 import Client.Controllers.GameController;
 import Shared.Client;
 import Server.GameSession.GameSessionBase;
+import Shared.GameScoreData;
 import Shared.Server;
 import javafx.application.Platform;
 
@@ -201,6 +202,15 @@ public class ClientModel implements Client {
         } catch (RemoteException e) {
             e.printStackTrace();
             return "Cannot reach server";
+        }
+    }
+
+    public ArrayList<GameScoreData> getScoreList(String gameName) {
+        try {
+            return serverStub.handleGetScoreListRequest(gameName);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
