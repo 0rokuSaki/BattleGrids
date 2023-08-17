@@ -18,8 +18,10 @@ public class ClientModel implements Client {
     //////////////////////////////////////////////////////
     /////////////////// REMOTE METHODS ///////////////////
     //////////////////////////////////////////////////////
+    @Override
     public void testConnection() throws RemoteException {}
 
+    @Override
     public void initializeGame(GameSessionBase gameSession) throws RemoteException {
         Platform.runLater(() -> {
             if (gameController != null) {
@@ -33,6 +35,15 @@ public class ClientModel implements Client {
         Platform.runLater(() -> {
             if (gameController != null) {
                 gameController.updateGame(gameSession);
+            }
+        });
+    }
+
+    @Override
+    public void terminateGame(String message) throws RemoteException {
+        Platform.runLater(() -> {
+            if (gameController != null) {
+                gameController.terminateGame(message);
             }
         });
     }
