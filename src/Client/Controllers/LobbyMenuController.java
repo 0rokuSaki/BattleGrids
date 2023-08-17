@@ -15,6 +15,11 @@ public class LobbyMenuController extends ControllerBase {
     }
 
     @FXML
+    void highScoresButtonPress(ActionEvent event) {
+        changeScene(((Node) event.getSource()).getScene(), "HighScoresMenu.fxml");
+    }
+
+    @FXML
     void myProfileButtonPress(ActionEvent event) throws IOException {
         changeScene(((Node) event.getSource()).getScene(), "MyProfileMenu.fxml");
     }

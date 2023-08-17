@@ -1,8 +1,12 @@
 package Server;
+import Shared.GameScoreData;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
+import java.util.Random;
+
 import static java.sql.DriverManager.*;
 
 public class DBManagerImpl implements DBManager {
@@ -75,13 +79,17 @@ public class DBManagerImpl implements DBManager {
     }
 
     public Boolean userExists(String username) {
-        try
-        {
+        try {
             return(statement.executeQuery("SELECT EXISTS (SELECT * FROM users WHERE username = '" + username + "')").next() && statement.getResultSet().getBoolean(1));
-        }catch (SQLException exception)
-        {
+        } catch (SQLException exception) {
             return null;
         }
     }
 
+    @Override
+    public GameScoreData getGameScoreData(String username, String gameName) {
+        // TODO: The following code is for testing only, remove later
+        Random rand = new Random();
+        return new GameScoreData(username, rand.nextInt(101), rand.nextInt(101), rand.nextInt(101));
+    }
 }

@@ -256,9 +256,9 @@ public class ServerImpl implements Server, Runnable {
                     "session number = " + sessionNumber + ")");
             return "Invalid session number";
         }
-        gameSessions.remove(sessionNumber);  // Remove session from gameSessions
-        gameSession.releaseNumber();         // Release session number
-        gameSession.setPlayerQuit(username); // Set quitting player in session
+        gameSessions.remove(sessionNumber);
+        gameSession.releaseNumber();
+        gameSession.setPlayerQuit(username);
 
         // Notify the winner
         Client winningPlayer;
