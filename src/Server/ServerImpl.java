@@ -63,14 +63,14 @@ public class ServerImpl implements Server, Runnable {
             return "Incorrect username and/or password";
         }
         loggedInUsersPool.add(username);
-        logger.info("User " + username + " logged in");
+        logger.info("User '" + username + "' logged in");
         return "";
     }
 
     @Override
     public void handleLogoutRequest(String username) throws RemoteException {
         if (loggedInUsersPool.remove(username)) {
-            logger.info("User " + username + " logged out");
+            logger.info("User '" + username + "' logged out");
         }
     }
 

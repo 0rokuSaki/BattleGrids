@@ -22,7 +22,7 @@ public abstract class GameSessionBase implements GameSession {
     public GameSessionBase(String player1, String player2) {
         Random random = new Random(); // Assign a random session number
         do {                          // Make sure the number is unique
-            sessionNumber = random.nextLong();
+            sessionNumber = Math.abs(random.nextLong());
         } while (sessionNumbers.contains(sessionNumber));
         sessionNumbers.add(sessionNumber);
 

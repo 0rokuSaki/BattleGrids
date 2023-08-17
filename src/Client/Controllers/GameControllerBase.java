@@ -61,10 +61,6 @@ public abstract class GameControllerBase extends ControllerBase implements GameC
         infoLabel.setTextFill(Color.GREEN);
 
         Platform.runLater(() -> {
-            // Set warning message when attempting to close the window
-            Stage stage = (Stage) gridRootPane.getScene().getWindow();
-            stage.setOnCloseRequest(this::handleOnCloseRequest);
-
             // Set size of gridRoot in the window
             AnchorPane.setLeftAnchor(gridRootPane, 0.0);
             AnchorPane.setRightAnchor(gridRootPane, 0.0);
@@ -105,6 +101,11 @@ public abstract class GameControllerBase extends ControllerBase implements GameC
     public void initializeGame(GameSession gameSession) {
         this.gameSession = gameSession;
         this.opponentName = username.equals(gameSession.getPlayer1()) ? gameSession.getPlayer2() : gameSession.getPlayer1();
+
+        // Set warning message when attempting to close the window
+        Stage stage = (Stage) gridRootPane.getScene().getWindow();
+        stage.setOnCloseRequest(this::handleOnCloseRequest);
+
         updateLabels();
         initializeGrid();
     }
