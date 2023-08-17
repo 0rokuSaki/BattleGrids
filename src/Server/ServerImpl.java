@@ -20,8 +20,13 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class ServerImpl implements Server, Runnable {
+
+    private final Logger logger;
 
     private final DBManager dbManager;
 
@@ -36,6 +41,7 @@ public class ServerImpl implements Server, Runnable {
     private final Registry rmiRegistry;
 
     public ServerImpl(Registry registry) throws ClassNotFoundException, SQLException {
+        logger = Logger.getLogger(ServerImpl.class.getName());
         rmiRegistry = registry;
         dbManager = new DBManagerImpl();
         loggedInUsersPool = Collections.synchronizedCollection(new ArrayList<>());
@@ -50,45 +56,57 @@ public class ServerImpl implements Server, Runnable {
     @Override
     public String handleLoginRequest(String username, String password) throws RemoteException {
         if (loggedInUsersPool.contains(username)) {
+            logger.info("Login request denied: user already logged in (username = '" + username + "')");
             return "User is already logged in";
         }
         String passwordHash = dbManager.getPasswordHash(username);
         if (passwordHash == null || !passwordHash.equals(getMd5DigestString(password))) {
+            logger.info("Login request denied: incorrect username and/or password (username = '" + username + "')");
             return "Incorrect username and/or password";
         }
         loggedInUsersPool.add(username);
-        System.out.println("User " + username + " logged in");
+        logger.info("User " + username + " logged in");
         return "";
     }
 
     @Override
     public void handleLogoutRequest(String username) throws RemoteException {
         if (loggedInUsersPool.remove(username)) {
-            System.out.println("User " + username + " logged out");
+            logger.info("User " + username + " logged out");
         }
     }
 
     @Override
     public String handleRegistrationRequest(String username, String password, String passwordVerification) throws RemoteException {
         if (dbManager.userExists(username) == null) {
+            logger.warning("Registration denied: received value 'null' when accessing database");
             return "Internal server error";
         }
         if (dbManager.userExists(username)) {
+            logger.info("Registration denied: username '" + username + "' already exists");
             return "Username already exists";
         }
         if (username.equals("")) {
+            logger.info("Registration denied: invalid username: '" + username + "'");
             return "Invalid username";
         }
         if (!password.equals(passwordVerification)) {
+            logger.info("Registration denied: passwords do not match (username = '" + username + "')");
             return "Passwords do not match";
         }
         if (!PasswordValidator.validatePassword(password)) {
+            logger.info("Registration denied: password does not match criteria (username = '" + username + "')");
             return PasswordValidator.getPasswordCriteria();
         }
-        if (dbManager.addUser(username, getMd5DigestString(password)) == null || !loggedInUsersPool.add(username)) {
+        if (dbManager.addUser(username, getMd5DigestString(password)) == null) {
+            logger.warning("Registration denied: error inserting user to database");
             return "Internal server error";
         }
-        System.out.println("User " + username + " registered");
+        if (!loggedInUsersPool.add(username)) {
+            logger.warning("Registration denied: error inserting user to logged in users pool");
+            return "Internal server error";
+        }
+        logger.info("User " + username + " registered");
         return "";
     }
 
