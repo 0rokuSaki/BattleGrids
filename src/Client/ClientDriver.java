@@ -25,4 +25,8 @@ public class ClientDriver extends Application {
     public void stop() {
         ClientModel.getInstance().finalize();
     }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
 }
