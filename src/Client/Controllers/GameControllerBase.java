@@ -8,7 +8,6 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
@@ -37,8 +36,6 @@ public abstract class GameControllerBase extends ControllerBase implements GameC
     protected Label infoLabel;
 
     protected GridPane grid;
-
-    protected Button[] buttons;
 
     protected GameSession gameSession;
 
@@ -131,7 +128,7 @@ public abstract class GameControllerBase extends ControllerBase implements GameC
             new Alert(Alert.AlertType.INFORMATION, alertContextText).showAndWait();
             changeScene(gridRootPane.getScene(), "GamesMenu.fxml");
         }
-        else if (username.equals(gameSession.getCurrTurn())) {
+        if (!gameFinished && username.equals(gameSession.getCurrTurn())) {
             buttonsSetDisable(false); // Activate buttons if its the user's turn
         }
     }
@@ -160,15 +157,11 @@ public abstract class GameControllerBase extends ControllerBase implements GameC
         infoLabel.setVisible(true);
     }
 
-    protected void buttonsSetDisable(boolean val) {
-        for (Button button : buttons) {
-            button.setDisable(val);
-        }
-    }
-
     protected abstract void initializeGrid();
 
     protected abstract void updateGrid();
 
     protected abstract void handleGameButtonPress(ActionEvent event);
+
+    protected abstract void buttonsSetDisable(boolean val);
 }
