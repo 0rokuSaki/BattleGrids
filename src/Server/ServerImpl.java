@@ -79,7 +79,7 @@ public class ServerImpl implements Server, Runnable {
     @Override
     public String handleRegistrationRequest(String username, String password, String passwordVerification) throws RemoteException {
         if (dbManager.userExists(username) == null) {
-            logger.warning("Registration denied: received value 'null' when accessing database");
+            logger.warning("Invalid return value from database");
             return "Internal server error";
         }
         if (dbManager.userExists(username)) {
@@ -113,23 +113,31 @@ public class ServerImpl implements Server, Runnable {
     @Override
     public String handleChangePasswordRequest(String username, String oldPassword, String newPassword, String newPasswordVerification) throws RemoteException {
         if (!loggedInUsersPool.contains(username)) {
+            logger.info("Change password request denied: logged in users pool does not contain user (username = '" + username +"')");
             return "Unable to identify user";
         }
         String passwordHash = dbManager.getPasswordHash(username);
         if (passwordHash == null) {
+            logger.info("Change password request denied: user does not exist (username = '" + username + "' )");
             return "User does not exist";
         }
         if (!passwordHash.equals(getMd5DigestString(oldPassword))) {
+            logger.info("Change password request denied: old password is incorrect (username = '" + username + "' )");
             return "Old password is incorrect";
         }
         if (!newPassword.equals(newPasswordVerification)) {
+            logger.info("Change password request denied: passwords do not match (username = '" + username + "' )");
             return "Passwords do not match";
         }
         if (!PasswordValidator.validatePassword(newPassword)) {
+            logger.info("Change password request denied: password does not match criteria (username = '" + username + "' )");
             return PasswordValidator.getPasswordCriteria();
         }
-        dbManager.setPasswordHash(username, getMd5DigestString(newPassword));
-        System.out.println("User " + username + " changed password");
+        if (dbManager.setPasswordHash(username, getMd5DigestString(newPassword)) == null) {
+            logger.warning("Invalid return value from database");
+            return "Internal server error";
+        }
+        logger.info("User " + username + " changed password");
         return "";
     }
 
@@ -141,13 +149,16 @@ public class ServerImpl implements Server, Runnable {
     @Override
     public String handlePlayGameRequest(String username, String gameName) throws RemoteException {
         if (!loggedInUsersPool.contains(username)) {
+            logger.info("Play game request denied: logged in users pool does not contain user (username = '" + username +"')");
             return "Unable to identify user";
         }
         Queue<String> waitingQueue = gameWaitingQueues.get(gameName);
         if (waitingQueue == null) {
+            logger.info("Play game request denied: invalid game name (username = ' " + username + "', game name = '" + gameName + "')");
             return "Invalid game selected";
         }
         if (waitingQueue.isEmpty()) {
+            logger.info("Added user '" + username + "' to game queue (game name = '" + gameName + "')");
             waitingQueue.add(username);
             return "";
         }
