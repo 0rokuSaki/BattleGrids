@@ -87,11 +87,7 @@ public class ConnectFourGameController extends GameControllerBase {
 
     protected void handleGameButtonPress(ActionEvent event) {
         int col = Integer.parseInt(((Button) event.getSource()).getText()) - 1;
-        if (!gameSession.legalMove(0, col)) {
-            Alert a = new Alert(Alert.AlertType.INFORMATION, "Column " + (col + 1) + " is full, choose another one");
-            a.showAndWait();
-            return;
-        }
+        if (!gameSession.legalMove(0, col)) return;
         buttonsSetDisable(true);
         String returnMsg = ClientModel.getInstance().makeMove(gameSession.getSessionNumber(), 0, col);
         if (!returnMsg.equals("")) {
