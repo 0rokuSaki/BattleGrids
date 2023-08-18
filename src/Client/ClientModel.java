@@ -7,6 +7,7 @@ import Shared.GameScoreData;
 import Shared.Server;
 import javafx.application.Platform;
 
+import java.io.*;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -15,6 +16,60 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
 public class ClientModel implements Client {
+
+    //////////////////////////////////////////////////////
+    ////////////////// STATIC VARIABLES //////////////////
+    //////////////////////////////////////////////////////
+    private static final String HOST = "localhost";
+
+    private static final int PORT = 54321;
+
+    private static final String CREDENTIALS_FILE_PATH = "./credentials";
+
+    private static final ClientModel instance = new ClientModel();
+
+    //////////////////////////////////////////////////////
+    ///////////////// INSTANCE VARIABLES /////////////////
+    //////////////////////////////////////////////////////
+    private String username;
+
+    private Server serverStub;
+
+    private Client clientStub;
+
+    private Registry serverRmiRegistry;
+
+    private GameController gameController;
+
+    //////////////////////////////////////////////////////
+    /////////////////// STATIC METHODS ///////////////////
+    //////////////////////////////////////////////////////
+    public static ClientModel getInstance() {
+        return instance;
+    }
+
+    public static Credentials loadCredentials() {
+        try (FileInputStream fileIn = new FileInputStream(CREDENTIALS_FILE_PATH);
+             ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
+
+            return  (Credentials) (objectIn.readObject());
+        }
+        catch (IOException | ClassNotFoundException ignored) {}
+        return null;
+    }
+
+    public static void saveCredentials(final String username, final String password) {
+        try (FileOutputStream fileOut = new FileOutputStream(CREDENTIALS_FILE_PATH);
+             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
+
+            objectOut.writeObject(new Credentials(username, password));
+        } catch (IOException ignored) {}
+    }
+
+    public static boolean deleteCredentials() {
+        File credentialsFile = new File(CREDENTIALS_FILE_PATH);
+        return credentialsFile.delete();
+    }
 
     //////////////////////////////////////////////////////
     /////////////////// REMOTE METHODS ///////////////////
@@ -48,35 +103,6 @@ public class ClientModel implements Client {
             }
         });
     }
-
-    //////////////////////////////////////////////////////
-    ////////////////// STATIC VARIABLES //////////////////
-    //////////////////////////////////////////////////////
-    private static final String HOST = "localhost";
-
-    private static final int PORT = 54321;
-
-    private static final ClientModel instance = new ClientModel();
-
-    //////////////////////////////////////////////////////
-    /////////////////// STATIC METHODS ///////////////////
-    //////////////////////////////////////////////////////
-    public static ClientModel getInstance() {
-        return instance;
-    }
-
-    //////////////////////////////////////////////////////
-    ///////////////// INSTANCE VARIABLES /////////////////
-    //////////////////////////////////////////////////////
-    private String username;
-
-    private Server serverStub;
-
-    private Client clientStub;
-
-    private Registry serverRmiRegistry;
-
-    private GameController gameController;
 
     //////////////////////////////////////////////////////
     /////////////////// PUBLIC METHODS ///////////////////

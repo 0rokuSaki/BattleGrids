@@ -2,14 +2,11 @@ package Client.Controllers;
 
 import Client.ClientModel;
 import Client.Credentials;
-import Client.CredentialsManager;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-
-import java.io.*;
 
 public class LoginMenuController extends ControllerBase {
 
@@ -44,7 +41,7 @@ public class LoginMenuController extends ControllerBase {
             loginButton.requestFocus();
 
             // Load credentials from file (if applicable)
-            Credentials credentials = CredentialsManager.loadCredentials();
+            Credentials credentials = ClientModel.loadCredentials();
             if (credentials != null) {
                 usernameField.setText(credentials.getUsername());
                 passwordField.setText(credentials.getPassword());
@@ -68,9 +65,9 @@ public class LoginMenuController extends ControllerBase {
         if (returnMessage.equals("")) { // Login successful
             // Save credentials
             if (rememberMeCheckBox.isSelected()) {
-                CredentialsManager.saveCredentials(username, password);
+                ClientModel.saveCredentials(username, password);
             } else if (loadedCredentials) {
-                CredentialsManager.deleteCredentials();
+                ClientModel.deleteCredentials();
             }
 
             // Change to lobby menu

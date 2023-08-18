@@ -1,14 +1,11 @@
 package Client.Controllers;
 
 import Client.ClientModel;
-import Client.CredentialsManager;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-
-import java.io.IOException;
 
 public class RegistrationMenuController extends ControllerBase {
 
@@ -36,12 +33,7 @@ public class RegistrationMenuController extends ControllerBase {
         regErrLabel.setText("");
 
         // Set focus on register button
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                registerButton.requestFocus();
-            }
-        });
+        Platform.runLater(() -> registerButton.requestFocus());
     }
 
     @FXML
@@ -58,7 +50,7 @@ public class RegistrationMenuController extends ControllerBase {
         if (returnMessage.equals("")) {  // Registration successful
             // Save credentials
             if (rememberMeCheckBox.isSelected()) {
-                CredentialsManager.saveCredentials(username, password);
+                ClientModel.saveCredentials(username, password);
             }
             changeScene(((Node) event.getSource()).getScene(), "LobbyMenu.fxml");
         } else {  // Registration failed
@@ -67,7 +59,7 @@ public class RegistrationMenuController extends ControllerBase {
     }
 
     @FXML
-    void backButtonPress(ActionEvent event) throws IOException {
+    void backButtonPress(ActionEvent event) {
         changeScene(((Node) event.getSource()).getScene(), "OpeningMenu.fxml");
     }
 }

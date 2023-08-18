@@ -6,8 +6,6 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 
-import java.io.IOException;
-
 public class MyProfileMenuController extends ControllerBase {
 
     @FXML

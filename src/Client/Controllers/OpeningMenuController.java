@@ -5,17 +5,15 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 
-import java.io.IOException;
-
 public class OpeningMenuController extends ControllerBase {
 
     @FXML
-    void loginButtonPress(ActionEvent event) throws IOException {
+    void loginButtonPress(ActionEvent event) {
         changeScene(((Node) event.getSource()).getScene(), "LoginMenu.fxml");
     }
 
     @FXML
-    void registerButtonPress(ActionEvent event) throws IOException {
+    void registerButtonPress(ActionEvent event) {
         changeScene(((Node) event.getSource()).getScene(), "RegistrationMenu.fxml");
     }
 

@@ -52,12 +52,8 @@ public class TicTacToeGameController extends GameControllerBase {
                 button.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
                 button.setPrefSize(gridRootPane.getPrefWidth() / GRID_SIZE, gridRootPane.getPrefHeight() / GRID_SIZE);
                 button.setOnAction(this::handleGameButtonPress);
-                button.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    buttonSizeChangeHandler(button);
-                });
-                button.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    buttonSizeChangeHandler(button);
-                });
+                button.widthProperty().addListener((observable, oldValue, newValue) -> buttonSizeChangeHandler(button));
+                button.heightProperty().addListener((observable, oldValue, newValue) -> buttonSizeChangeHandler(button));
                 buttons[row][col] = button;
                 grid.add(buttons[row][col], col, row);
             }
