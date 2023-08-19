@@ -27,8 +27,9 @@ BattleGrids is powered by a combination of cutting-edge technologies:
 Follow these steps to get BattleGrids up and running:
 
 1. Clone this repository: `git clone https://github.com/0rokusaki/battlegrids.git`
-2. Start the Server `run_server.bat`
-3. Launch the game: `run_client.bat`
+2. Compile all source code: `build_all.bat`
+3. Start the server `run_server.bat`
+4. Launch the client: `run_client.bat`
 
 ---
 
