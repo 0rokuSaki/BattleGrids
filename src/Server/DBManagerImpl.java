@@ -1,10 +1,7 @@
 package Server;
 import Shared.GameScoreData;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -22,8 +19,9 @@ public class DBManagerImpl implements DBManager {
         statement = connection.createStatement();//creating statement
         statement.executeUpdate("CREATE DATABASE IF NOT EXISTS mydatabase");
         statement.executeUpdate("USE mydatabase");////using mydatabase
-        // statement.executeUpdate("DROP TABLE IF EXISTS users");//deleting table "users" TODO: Remove later
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS users (username varchar (255) PRIMARY KEY, passwordHash char (32))");//creating table "users"
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS users (username varchar (255) PRIMARY KEY, passwordHash char (32))");
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS games (username varchar (255), gameName char (32), wins int, draws int, loses int, PRIMARY KEY (username, gameName))");
+
     }
 
 
@@ -89,15 +87,39 @@ public class DBManagerImpl implements DBManager {
 
     @Override
     public ArrayList<GameScoreData> getGameScoreData(String gameName) {
-        // TODO: The following code is for testing only, remove later
-        Random rand = new Random();
         ArrayList<GameScoreData> result = new ArrayList<>();
-        result.add(new GameScoreData("Blah", rand.nextInt(101), rand.nextInt(101), rand.nextInt(101)));
-        return result;
+        try {
+            String query = "SELECT username, wins, draws, loses FROM games WHERE gameName = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, gameName);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next())
+                result.add(new GameScoreData(resultSet.getString("username"), resultSet.getInt("wins"), resultSet.getInt("draws"), resultSet.getInt("loses")));
+
+            resultSet.close();
+            preparedStatement.close();
+            return result;
+        } catch (SQLException exception) {
+            return null;
+        }
     }
 
     @Override
     public String updateGameScoreData(String username, String gameName, String result) {
-        return null;
+        try {
+            String updateQuery = "UPDATE games SET " + result + " = " + result + " + 1 WHERE username = ? AND gameName = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, gameName);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            preparedStatement.close();
+            return result;
+
+        } catch (SQLException exception) {
+            return null;
+        }
     }
 }
