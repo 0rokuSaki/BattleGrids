@@ -12,4 +12,5 @@ public interface DBManager {
     Boolean userExists(String username);
 
     ArrayList<GameScoreData> getGameScoreData(String gameName);
+    String updateGameScoreData(String username, String gameName, String result);
 }

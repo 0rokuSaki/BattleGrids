@@ -2,8 +2,8 @@ package Client;
 
 import Client.Controllers.GameController;
 import Shared.Client;
-import Server.GameSession.GameSessionBase;
 import Shared.GameScoreData;
+import Shared.GameSession;
 import Shared.Server;
 import javafx.application.Platform;
 
@@ -78,7 +78,7 @@ public class ClientModel implements Client {
     public void testConnection() throws RemoteException {}
 
     @Override
-    public void initializeGame(GameSessionBase gameSession) throws RemoteException {
+    public void initializeGame(GameSession gameSession) throws RemoteException {
         Platform.runLater(() -> {
             if (gameController != null) {
                 gameController.initializeGame(gameSession);
@@ -87,7 +87,7 @@ public class ClientModel implements Client {
     }
 
     @Override
-    public void updateGame(GameSessionBase gameSession) throws RemoteException {
+    public void updateGame(GameSession gameSession) throws RemoteException {
         Platform.runLater(() -> {
             if (gameController != null) {
                 gameController.updateGame(gameSession);

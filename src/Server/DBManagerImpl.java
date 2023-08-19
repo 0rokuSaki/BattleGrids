@@ -95,4 +95,9 @@ public class DBManagerImpl implements DBManager {
         result.add(new GameScoreData("Blah", rand.nextInt(101), rand.nextInt(101), rand.nextInt(101)));
         return result;
     }
+
+    @Override
+    public String updateGameScoreData(String username, String gameName, String result) {
+        return null;
+    }
 }
