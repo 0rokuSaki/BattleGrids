@@ -302,7 +302,13 @@ public class ServerImpl implements Server, Runnable {
 
     @Override
     public ArrayList<GameScoreData> handleGetScoreListRequest(String gameName) throws RemoteException {
-        return dbManager.getGameScoreData(gameName);
+        ArrayList<GameScoreData> result = dbManager.getGameScoreData(gameName);
+        if (result == null) {
+            result = new ArrayList<>();
+            result.add(new GameScoreData("", 0,0,0));
+            return result;
+        }
+        return result;
     }
 
     private static String getMd5DigestString(String inputString) {
