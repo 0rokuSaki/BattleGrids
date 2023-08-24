@@ -1,28 +1,24 @@
 package Server;
 import Shared.GameScoreData;
 
-import java.rmi.RemoteException;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Random;
 
 import static java.sql.DriverManager.*;
 
 public class DBManagerImpl implements DBManager {
 
-    private Statement statement;
-    private Connection connection;
+    private final Statement statement;
+    private final Connection connection;
 
     public DBManagerImpl() throws ClassNotFoundException, SQLException {
-
-        Class.forName("com.mysql.cj.jdbc.Driver");//loading driver
-        connection = getConnection("jdbc:mysql://localhost:3306", "root", "root");//making connection
-        statement = connection.createStatement();//creating statement
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        connection = getConnection("jdbc:mysql://localhost:3306", "root", "root");
+        statement = connection.createStatement();
         statement.executeUpdate("CREATE DATABASE IF NOT EXISTS mydatabase");
-        statement.executeUpdate("USE mydatabase");////using mydatabase
+        statement.executeUpdate("USE mydatabase");
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS users (username varchar (255) PRIMARY KEY, passwordHash char (32))");
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS games (username varchar (255), gameName char (32), win int, lose int, tie int, PRIMARY KEY (username, gameName))");
-
     }
 
     public String addUser(String username, String passwordHash) {
@@ -111,7 +107,7 @@ public class DBManagerImpl implements DBManager {
             preparedStatement.setString(1, username);
             preparedStatement.setString(2, gameName);
 
-            preparedStatement.executeUpdate(); // Execute the query
+            preparedStatement.executeUpdate();
             preparedStatement.close();
             return result;
 

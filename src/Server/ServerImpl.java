@@ -85,9 +85,9 @@ public class ServerImpl implements Server, Runnable {
             logger.info("Registration denied: username '" + username + "' already exists");
             return "Username already exists";
         }
-        if (username.equals("")) {
+        if (!UsernameValidator.validateUsername(username)) {
             logger.info("Registration denied: invalid username: '" + username + "'");
-            return "Invalid username";
+            return UsernameValidator.getUsernameCriteria();
         }
         if (!password.equals(passwordVerification)) {
             logger.info("Registration denied: passwords do not match (username = '" + username + "')");
