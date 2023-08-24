@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public interface GameSession extends Serializable {
     long getSessionNumber();
+    String getGameName();
     String getPlayer1();
     String getPlayer2();
     String getCurrTurn();

@@ -224,8 +224,17 @@ public class ServerImpl implements Server, Runnable {
         }
         gameSession.makeMove(row, col);  // Make the move
 
+        // Check if game ended, update DB if yes
         String winner = gameSession.getWinner();
-        if (winner != null) {
+        if (winner != null || gameSession.getTie()) {
+            if (winner != null) {
+                String loser = winner.equals(gameSession.getPlayer1()) ? gameSession.getPlayer2() : gameSession.getPlayer1();
+                dbManager.updateGameScoreData(winner, gameSession.getGameName(), "win");
+                dbManager.updateGameScoreData(loser, gameSession.getGameName(), "lose");
+            } else {
+                dbManager.updateGameScoreData(gameSession.getPlayer1(), gameSession.getGameName(), "tie");
+                dbManager.updateGameScoreData(gameSession.getPlayer2(), gameSession.getGameName(), "tie");
+            }
             gameSessions.remove(sessionNumber);  // Remove session if game ended
             gameSession.releaseNumber();         // Release session
         }
@@ -303,11 +312,6 @@ public class ServerImpl implements Server, Runnable {
     @Override
     public ArrayList<GameScoreData> handleGetScoreListRequest(String gameName) throws RemoteException {
         ArrayList<GameScoreData> result = dbManager.getGameScoreData(gameName);
-        if (result == null) {
-            result = new ArrayList<>();
-            result.add(new GameScoreData("", 0,0,0));
-            return result;
-        }
         return result;
     }
 
