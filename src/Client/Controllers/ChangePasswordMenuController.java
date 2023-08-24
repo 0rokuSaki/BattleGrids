@@ -1,19 +1,14 @@
 package Client.Controllers;
 
 import Client.ClientModel;
-import Client.CredentialsManager;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.paint.Color;
-
-import java.io.IOException;
-import java.rmi.RemoteException;
 
 public class ChangePasswordMenuController extends ControllerBase {
 
@@ -55,7 +50,7 @@ public class ChangePasswordMenuController extends ControllerBase {
             acceptButton.setDisable(true);
 
             // Delete saved credentials
-            CredentialsManager.deleteCredentials();
+            ClientModel.deleteCredentials();
 
             // Inform user about success
             infoLabel.setTextFill(Color.GREEN);

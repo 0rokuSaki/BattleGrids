@@ -4,6 +4,7 @@ import Server.GameSession.ConnectFourGameSession;
 import Server.GameSession.TicTacToeGameSession;
 import Shared.Client;
 import Server.GameSession.GameSessionBase;
+import Shared.GameScoreData;
 import Shared.Server;
 
 import javax.xml.bind.DatatypeConverter;
@@ -223,8 +224,17 @@ public class ServerImpl implements Server, Runnable {
         }
         gameSession.makeMove(row, col);  // Make the move
 
+        // Check if game ended, update DB if yes
         String winner = gameSession.getWinner();
-        if (winner != null) {
+        if (winner != null || gameSession.getTie()) {
+            if (winner != null) {
+                String loser = winner.equals(gameSession.getPlayer1()) ? gameSession.getPlayer2() : gameSession.getPlayer1();
+                dbManager.updateGameScoreData(winner, gameSession.getGameName(), "win");
+                dbManager.updateGameScoreData(loser, gameSession.getGameName(), "lose");
+            } else {
+                dbManager.updateGameScoreData(gameSession.getPlayer1(), gameSession.getGameName(), "tie");
+                dbManager.updateGameScoreData(gameSession.getPlayer2(), gameSession.getGameName(), "tie");
+            }
             gameSessions.remove(sessionNumber);  // Remove session if game ended
             gameSession.releaseNumber();         // Release session
         }
@@ -256,9 +266,9 @@ public class ServerImpl implements Server, Runnable {
                     "session number = " + sessionNumber + ")");
             return "Invalid session number";
         }
-        gameSessions.remove(sessionNumber);  // Remove session from gameSessions
-        gameSession.releaseNumber();         // Release session number
-        gameSession.setPlayerQuit(username); // Set quitting player in session
+        gameSessions.remove(sessionNumber);
+        gameSession.releaseNumber();
+        gameSession.setPlayerQuit(username);
 
         // Notify the winner
         Client winningPlayer;
@@ -297,6 +307,12 @@ public class ServerImpl implements Server, Runnable {
             return "Internal server error";
         }
         return "";
+    }
+
+    @Override
+    public ArrayList<GameScoreData> handleGetScoreListRequest(String gameName) throws RemoteException {
+        ArrayList<GameScoreData> result = dbManager.getGameScoreData(gameName);
+        return result;
     }
 
     private static String getMd5DigestString(String inputString) {

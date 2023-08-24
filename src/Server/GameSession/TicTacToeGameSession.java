@@ -5,7 +5,7 @@ public class TicTacToeGameSession extends GameSessionBase{
     private static final int GRID_SIZE = 3;
 
     public TicTacToeGameSession(String player1, String player2) {
-        super(player1, player2);
+        super("Tic Tac Toe", player1, player2);
 
         // Initialize a 2D String array representing the game board
         gameBoard = new String[GRID_SIZE][GRID_SIZE];

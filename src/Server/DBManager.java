@@ -1,12 +1,14 @@
 package Server;
 
-import java.sql.SQLException;
+import Shared.GameScoreData;
+
+import java.util.ArrayList;
 
 public interface DBManager {
-    public String printUsersTable();
-    public String addUser(String username, String passwordHash);
-    public String setPasswordHash(String username, String passwordHash);
-    public String getPasswordHash(String username);
-    public Boolean userExists(String username);
-
+    String addUser(String username, String passwordHash);
+    String setPasswordHash(String username, String passwordHash);
+    String getPasswordHash(String username);
+    Boolean userExists(String username);
+    ArrayList<GameScoreData> getGameScoreData(String gameName);
+    String updateGameScoreData(String username, String gameName, String result);
 }

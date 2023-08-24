@@ -9,7 +9,7 @@ public class ConnectFourGameSession extends GameSessionBase {
     private final int[] rowState;
 
     public ConnectFourGameSession(String player1, String player2) {
-        super(player1, player2);
+        super("Connect Four", player1, player2);
 
         // For each column in the grid, rowState stores the row index of the top shape
         rowState = new int[GRID_SIZE + 1];

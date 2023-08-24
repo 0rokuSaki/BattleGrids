@@ -23,4 +23,6 @@ public interface Server extends Remote {
     String handleQuitGameRequest(String username, long sessionNumber) throws RemoteException;
 
     String handleQuitGameRequest(String username, String gameName) throws RemoteException;
+
+    ArrayList<GameScoreData> handleGetScoreListRequest(String gameName) throws RemoteException;
 }

@@ -24,6 +24,11 @@
                   <Font name="System Bold" size="18.0" />
                </font>
             </Button>
+            <Button layoutX="295.0" layoutY="235.0" mnemonicParsing="false" onAction="#highScoresButtonPress" prefHeight="50.0" prefWidth="150.0" text="High Scores">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Button>
             <Button layoutX="295.0" layoutY="325.0" mnemonicParsing="false" onAction="#myProfileButtonPress" prefHeight="50.0" prefWidth="150.0" text="My Profile">
                <font>
                   <Font name="System Bold" size="18.0" />
