@@ -11,9 +11,9 @@ public class DBManagerImpl implements DBManager {
     private final Statement statement;
     private final Connection connection;
 
-    public DBManagerImpl() throws ClassNotFoundException, SQLException {
+    public DBManagerImpl(String username, String password) throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
-        connection = getConnection("jdbc:mysql://localhost:3306", "root", "root");
+        connection = getConnection("jdbc:mysql://localhost:3306", username, password);
         statement = connection.createStatement();
         statement.executeUpdate("CREATE DATABASE IF NOT EXISTS mydatabase");
         statement.executeUpdate("USE mydatabase");

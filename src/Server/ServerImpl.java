@@ -39,10 +39,10 @@ public class ServerImpl implements Server, Runnable {
 
     private final Registry rmiRegistry;
 
-    public ServerImpl(Registry registry) throws ClassNotFoundException, SQLException {
+    public ServerImpl(Registry registry, String dbUsername, String dbPassword) throws ClassNotFoundException, SQLException {
         logger = Logger.getLogger(ServerImpl.class.getName());
         rmiRegistry = registry;
-        dbManager = new DBManagerImpl();
+        dbManager = new DBManagerImpl(dbUsername, dbPassword);
         loggedInUsersPool = Collections.synchronizedCollection(new ArrayList<>());
         gamesList = new ArrayList<>(Arrays.asList("Connect Four", "Tic Tac Toe"));
         gameSessions = new ConcurrentHashMap<>();
@@ -382,11 +382,18 @@ public class ServerImpl implements Server, Runnable {
     }
 
     public static void main(String[] args) throws RemoteException, AlreadyBoundException, ClassNotFoundException, SQLException {
+        // Prompt for DB username and password
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("$ Enter DB username: ");
+        String dbUsername = scanner.nextLine();
+        System.out.print("$ Enter DB password: ");
+        String dbPassword = scanner.nextLine();
+
         final int PORT = 54321;
 
         Registry registry = LocateRegistry.createRegistry(PORT);   // Create RMI Registry
 
-        ServerImpl server = new ServerImpl(registry);  // Instantiate GameServer object
+        ServerImpl server = new ServerImpl(registry, dbUsername, dbPassword);  // Instantiate GameServer object
         new Thread(server).start();                    // Start server thread
 
         Server stub = (Server) UnicastRemoteObject.exportObject(server, 0);  // Export object
