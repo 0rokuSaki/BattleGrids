@@ -97,19 +97,9 @@ public class ClientModel implements Client {
     //////////////////////////////////////////////////////
     /////////////////// REMOTE METHODS ///////////////////
     //////////////////////////////////////////////////////
-
-    /**
-     * Remote method for the server to test RMI connectivity.
-     * @throws RemoteException If RMI exception occurred.
-     */
     @Override
     public void testConnection() throws RemoteException {}
 
-    /**
-     * Remote method for the server to trigger game initialization.
-     * @param gameSession Game Session object.
-     * @throws RemoteException If RMI exception occurred.
-     */
     @Override
     public void initializeGame(GameSession gameSession) throws RemoteException {
         Platform.runLater(() -> {
@@ -119,11 +109,6 @@ public class ClientModel implements Client {
         });
     }
 
-    /**
-     * Remote method for the server to trigger game update.
-     * @param gameSession Game Session object.
-     * @throws RemoteException If RMI exception occurred.
-     */
     @Override
     public void updateGame(GameSession gameSession) throws RemoteException {
         Platform.runLater(() -> {
@@ -133,10 +118,6 @@ public class ClientModel implements Client {
         });
     }
 
-    /**
-     * Remote method for the server to trigger game termination.
-     * @throws RemoteException If RMI exception occurred.
-     */
     @Override
     public void terminateGame(String message) throws RemoteException {
         Platform.runLater(() -> {
@@ -149,7 +130,6 @@ public class ClientModel implements Client {
     //////////////////////////////////////////////////////
     /////////////////// PUBLIC METHODS ///////////////////
     //////////////////////////////////////////////////////
-
     /**
      * Sets a reference to the game controller. Used for updating the game by the server.
      * @param gameController Reference to game controller.
