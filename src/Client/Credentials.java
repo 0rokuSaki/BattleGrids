@@ -1,3 +1,13 @@
+/**
+ * Credentials.java
+ *
+ * This class represents a username and password pair to be saved on a file.
+ *
+ * @author Aaron Barkan, Omer Bar
+ * @version 1.0
+ * @since August, 2023
+ */
+
 package Client;
 
 import java.io.Serializable;

@@ -1,3 +1,13 @@
+/**
+ * ClientDriver.java
+ *
+ * This class holds the main entry point to the program.
+ *
+ * @author Aaron Barkan, Omer Bar
+ * @version 1.0
+ * @since August, 2023
+ */
+
 package Client;
 
 import javafx.application.Application;

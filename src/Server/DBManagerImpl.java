@@ -6,11 +6,36 @@ import java.util.ArrayList;
 
 import static java.sql.DriverManager.*;
 
+/**
+ * The `DBManagerImpl` class implements the `DBManager` interface to interact with a MySQL database.
+ * It provides methods for managing user data and game scores in the database.
+ *
+ * <p> This class establishes a connection to the database, creates necessary tables if they don't exist,
+ * and implements methods to add users, update password hashes, retrieve password hashes, check for user existence,
+ * retrieve game score data, and update game scores.
+ *
+ * <p> It utilizes JDBC (Java Database Connectivity) to interact with the MySQL database.
+ *
+ * @author
+ *   - Aaron Barkan
+ *   - Omer Bar
+ * @version 1.0
+ * @since August 2023
+ */
 public class DBManagerImpl implements DBManager {
 
     private final Statement statement;
     private final Connection connection;
 
+    /**
+     * Constructs a `DBManagerImpl` instance by establishing a connection to the database,
+     * creating necessary tables if they don't exist, and initializing the database connection.
+     *
+     * @param username The username to access the database.
+     * @param password The password associated with the username.
+     * @throws ClassNotFoundException If the MySQL JDBC driver class is not found.
+     * @throws SQLException If a SQL-related error occurs during database setup.
+     */
     public DBManagerImpl(String username, String password) throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
         connection = getConnection("jdbc:mysql://localhost:3306", username, password);
@@ -21,15 +46,16 @@ public class DBManagerImpl implements DBManager {
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS games (username varchar (255), gameName char (32), win int, lose int, tie int, PRIMARY KEY (username, gameName))");
     }
 
+    ////////////////////////////////////////////////////////
+    //// The rest of the methods are implemented here...////
+    ////////////////////////////////////////////////////////
     public String addUser(String username, String passwordHash) {
-        try{
+        try {
             statement.executeUpdate("INSERT INTO users (username, passwordHash) VALUES ('" + username + "', '" + passwordHash + "')");
             return (username+", "+passwordHash);
-        }catch (SQLException exception)
-        {
+        } catch (SQLException exception) {
             return null;
         }
-
     }
 
     public String setPasswordHash(String username, String passwordHash) {
@@ -37,22 +63,20 @@ public class DBManagerImpl implements DBManager {
             String updateQuery = "UPDATE users SET passwordHash = '" + passwordHash + "' WHERE username = '" + username + "'";
             statement.executeUpdate(updateQuery);
             return passwordHash;
-
         } catch (SQLException exception) {
             return null;
         }
     }
 
     public String getPasswordHash(String username) {
-        try{
+        try {
             ResultSet resultSet = statement.executeQuery("SELECT passwordHash FROM users WHERE username = '"+username+"'");
             resultSet.next();
             String passwordHash = resultSet.getString("passwordHash");
             resultSet.close();
             return(passwordHash);
-        }catch (SQLException exception)
-        {
-            return (null);
+        } catch (SQLException exception) {
+            return null;
         }
     }
 
