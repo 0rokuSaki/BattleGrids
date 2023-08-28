@@ -23,6 +23,27 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
+/**
+ * The `ServerImpl` class implements the `Server` interface and provides the actual implementation of the remote server's methods.
+ * It handles various requests from clients, such as login, logout, registration, game play, and more.
+ *
+ * <p> This class uses RMI (Remote Method Invocation) technology to facilitate communication between clients and the server.
+ * The server is responsible for managing user sessions, game sessions, and game-related operations.
+ *
+ * <p> The server's methods are designed to handle remote invocations from clients and provide appropriate responses.
+ *
+ * <p> This class uses various helper classes and data structures to manage user sessions, game sessions, and user-related data.
+ *
+ * <p> This class is designed to be run as a standalone program using the `main` method.
+ *
+ * <p> This class is part of the server package and interacts with clients using the shared package.
+ *
+ * @author
+ *   - Aaron Barkan
+ *   - Omer Bar
+ * @version 1.0
+ * @since August 2023
+ */
 public class ServerImpl implements Server, Runnable {
 
     private final Logger logger;
@@ -315,6 +336,13 @@ public class ServerImpl implements Server, Runnable {
         return result;
     }
 
+    /**
+     * Computes the MD5 digest of the provided input string.
+     * This method is used to hash passwords before storing them in the database.
+     *
+     * @param inputString The input string to be hashed.
+     * @return The MD5 digest of the input string as a hexadecimal string, or `null` if an error occurs during hashing.
+     */
     private static String getMd5DigestString(String inputString) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -325,6 +353,12 @@ public class ServerImpl implements Server, Runnable {
         return null;
     }
 
+    /**
+     * The `run` method is responsible for monitoring the active game sessions and disconnected users.
+     * It periodically checks the connection status of clients and terminates game sessions with disconnected users.
+     * It also manages the removal of disconnected users from the logged-in user pool.
+     * The method runs indefinitely in a separate thread.
+     */
     @Override
     public void run() {
         while (true) {
@@ -381,6 +415,16 @@ public class ServerImpl implements Server, Runnable {
         }
     }
 
+    /**
+     * The main method starts the RMI registry, instantiates a `ServerImpl` object, exports it as a remote object,
+     * and binds it to the registry for remote invocation by clients.
+     *
+     * @param args Command-line arguments (not used).
+     * @throws RemoteException If a remote communication error occurs.
+     * @throws AlreadyBoundException If the server object is already bound in the RMI registry.
+     * @throws ClassNotFoundException If a required class is not found.
+     * @throws SQLException If a database-related error occurs.
+     */
     public static void main(String[] args) throws RemoteException, AlreadyBoundException, ClassNotFoundException, SQLException {
         // Prompt for DB username and password
         Scanner scanner = new Scanner(System.in);
